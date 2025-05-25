@@ -1,0 +1,158 @@
+---
+import type { MastodonPost } from '../types/mastodon';
+
+interface Props {
+  post: MastodonPost;
+}
+
+const { post } = Astro.props;
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function stripHtml(html: string) {
+  return html.replace(/<[^>]*>/g, '');
+}
+---
+
+<article class="mastodon-post">
+  <header class="post-header">
+    <div class="account-info">
+      <img src={post.account.avatar} alt={`${post.account.display_name} avatar`} class="avatar" />
+      <div class="account-details">
+        <strong class="display-name">{post.account.display_name}</strong>
+        <span class="username">@{post.account.username}</span>
+      </div>
+    </div>
+    <time class="post-date" datetime={post.created_at}>
+      {formatDate(post.created_at)}
+    </time>
+  </header>
+
+  {post.spoiler_text && (
+    <div class="spoiler-warning">
+      <strong>Content Warning:</strong> {post.spoiler_text}
+    </div>
+  )}
+
+  <div class="post-content" set:html={post.content}></div>
+
+  {post.media_attachments && post.media_attachments.length > 0 && (
+    <div class="media-attachments">
+      {post.media_attachments.map((media) => (
+        media.type === 'image' ? (
+          <img 
+            src={media.url} 
+            alt={media.description || 'Media attachment'} 
+            class="media-image"
+          />
+        ) : (
+          <a href={media.url} target="_blank" rel="noopener noreferrer">
+            {media.type === 'video' ? '🎥' : media.type === 'audio' ? '🎵' : '📎'} 
+            {media.description || `${media.type} attachment`}
+          </a>
+        )
+      ))}
+    </div>
+  )}
+
+  <footer class="post-stats">
+    <span class="stat">💬 {post.replies_count}</span>
+    <span class="stat">🔄 {post.reblogs_count}</span>
+    <span class="stat">⭐ {post.favourites_count}</span>
+  </footer>
+</article>
+
+<style>
+  .mastodon-post {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: white;
+  }
+
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .account-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .account-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .display-name {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .username {
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  .post-date {
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  .spoiler-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: #856404;
+  }
+
+  .post-content {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .media-attachments {
+    margin-bottom: 0.75rem;
+  }
+
+  .media-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 0.25rem;
+  }
+
+  .post-stats {
+    display: flex;
+    gap: 1rem;
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+</style>

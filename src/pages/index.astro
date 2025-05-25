@@ -1,5 +1,57 @@
 ---
+import MastodonPost from '../components/MastodonPost.astro';
+import type { MastodonPost as MastodonPostType } from '../types/mastodon';
 
+// Load Mastodon archive from JSON file
+let posts: MastodonPostType[] = [];
+
+try {
+  // Import the JSON file directly
+  const archiveData = await import('../../public/mastodon-archive.json');
+  const data = archiveData.default;
+  
+  // Handle ActivityPub format
+  if (data.orderedItems) {
+    posts = data.orderedItems
+      .filter((item: any) => item.type === 'Create' && item.object && item.object.type === 'Note')
+      .map((item: any) => {
+        const obj = item.object;
+        return {
+          id: obj.id || Math.random().toString(),
+          created_at: obj.published || new Date().toISOString(),
+          content: obj.content || '',
+          url: obj.url || obj.id,
+          visibility: 'public',
+          sensitive: obj.sensitive || false,
+          spoiler_text: obj.summary || '',
+          media_attachments: obj.attachment?.map((att: any) => ({
+            id: att.id || Math.random().toString(),
+            type: att.mediaType?.includes('image') ? 'image' : 
+                  att.mediaType?.includes('video') ? 'video' : 
+                  att.mediaType?.includes('audio') ? 'audio' : 'unknown',
+            url: att.url || att.href,
+            preview_url: att.url || att.href,
+            description: att.name || att.summary
+          })) || [],
+          account: {
+            id: obj.attributedTo || 'unknown',
+            username: obj.attributedTo?.split('/').pop() || 'user',
+            display_name: obj.attributedTo?.split('/').pop() || 'User',
+            avatar: '/favicon.svg',
+            url: obj.attributedTo || ''
+          },
+          replies_count: obj.replies?.totalItems || 0,
+          reblogs_count: obj.shares?.totalItems || 0,
+          favourites_count: obj.likes?.totalItems || 0
+        };
+      });
+  }
+  
+  // Sort by date (newest first)
+  posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+} catch (error) {
+  console.log('Could not load mastodon-archive.json:', error);
+}
 ---
 
 <html lang="en">
@@ -8,9 +60,109 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Mastodon Archive</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<header>
+			<h1>My Mastodon Archive</h1>
+			<p>A static archive of my Mastodon posts</p>
+		</header>
+
+		<main>
+			{posts.length === 0 && (
+				<div class="placeholder">
+					<h2>No posts found</h2>
+					<p>Place your Mastodon archive JSON file at <code>public/mastodon-archive.json</code> to see your posts here.</p>
+					<p>To use this app:</p>
+					<ol>
+						<li>Export your Mastodon archive from your instance</li>
+						<li>Extract the archive and locate the JSON file (usually named like 'outbox.json')</li>
+						<li>Place it in the public folder as 'mastodon-archive.json'</li>
+						<li>Restart the development server</li>
+					</ol>
+				</div>
+			)}
+
+			<div class="posts-container">
+				{posts.map((post) => (
+					<MastodonPost post={post} />
+				))}
+			</div>
+		</main>
 	</body>
 </html>
+
+<style>
+	body {
+		font-family: system-ui, sans-serif;
+		line-height: 1.6;
+		margin: 0;
+		padding: 0;
+		background-color: #f5f5f5;
+	}
+
+	header {
+		background: #6364ff;
+		color: white;
+		padding: 2rem 1rem;
+		text-align: center;
+	}
+
+	header h1 {
+		margin: 0 0 0.5rem 0;
+		font-size: 2.5rem;
+	}
+
+	header p {
+		margin: 0;
+		opacity: 0.9;
+	}
+
+	main {
+		max-width: 800px;
+		margin: 2rem auto;
+		padding: 0 1rem;
+	}
+
+	.error {
+		background: #fee;
+		border: 1px solid #fcc;
+		border-radius: 8px;
+		padding: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	.error p {
+		margin: 0 0 1rem 0;
+	}
+
+	.error ol {
+		margin: 0;
+	}
+
+	.placeholder {
+		text-align: center;
+		padding: 3rem 1rem;
+		background: white;
+		border-radius: 8px;
+		border: 1px solid #ddd;
+	}
+
+	.placeholder h2 {
+		color: #666;
+		margin-bottom: 1rem;
+	}
+
+	.placeholder code {
+		background: #f0f0f0;
+		padding: 0.25rem 0.5rem;
+		border-radius: 4px;
+		font-family: 'Courier New', monospace;
+	}
+
+	.posts-container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+</style>
