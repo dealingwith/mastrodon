@@ -1,5 +1,6 @@
 ---
 import type { MastodonPost } from "../types/mastodon";
+import LinkPreview from './LinkPreview.astro';
 
 interface Props {
   post: MastodonPost;
@@ -20,6 +21,17 @@ function formatDate(dateString: string) {
 function stripHtml(html: string) {
   return html.replace(/<[^>]*>/g, "");
 }
+
+function extractUrls(content: string): string[] {
+  const urlRegex = /https?:\/\/[^\s<>"]+/gi;
+  const matches = content.match(urlRegex) || [];
+  // Remove duplicates and filter out image/media URLs
+  return [...new Set(matches)].filter(url => 
+    !url.match(/\.(jpg|jpeg|png|gif|webp|mp4|mp3|wav|pdf)$/i)
+  );
+}
+
+const urls = extractUrls(post.content);
 ---
 
 <article
@@ -78,7 +90,7 @@ function stripHtml(html: string) {
               href={media.url}
               target="_blank"
               rel="noopener noreferrer"
-              class="mastodon-link inline-flex items-center space-x-3 text-orange-700 hover:text-red-700 hover:underline bg-orange-50 px-4 py-2 rounded-lg border border-orange-200"
+              class="inline-flex items-center space-x-3 text-orange-700 hover:text-red-700 hover:underline bg-orange-50 px-4 py-2 rounded-lg border border-orange-200"
             >
               {media.type === "video" ? (
                 <svg
@@ -132,6 +144,14 @@ function stripHtml(html: string) {
       </div>
     )
   }
+
+  {urls.length > 0 && (
+    <div class="mb-5 space-y-3">
+      {urls.map((url) => (
+        <LinkPreview url={url} />
+      ))}
+    </div>
+  )}
 
   <footer
     class="flex space-x-8 text-stone-600 text-sm border-t border-orange-100 pt-4"
@@ -192,3 +212,63 @@ function stripHtml(html: string) {
     </span>
   </footer>
 </article>
+
+<style>
+  /* Style links within post content */
+  .prose a {
+    color: #ea580c;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: #fed7aa;
+    transition: all 0.2s ease;
+  }
+  
+  .prose a:hover {
+    color: #dc2626;
+    text-decoration-color: #ef4444;
+  }
+  
+  /* Style for external link icon */
+  .prose a[href^="http"]:not([href*="indieweb.social"])::after {
+    content: "";
+    display: inline-block;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-left: 0.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ea580c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+  }
+  
+  /* Style mentions and hashtags */
+  .prose a[href*="/tags/"]:not([href^="http"]) {
+    color: #d97706;
+    font-weight: 600;
+    text-decoration: none;
+    background-color: #fffbeb;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+  }
+  
+  .prose a[href*="/tags/"]:not([href^="http"]):hover {
+    color: #ea580c;
+    background-color: #fef3c7;
+  }
+  
+  .prose a.mention {
+    color: #ea580c;
+    font-weight: 600;
+    text-decoration: none;
+    background-color: #fff7ed;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+  }
+  
+  .prose a.mention:hover {
+    color: #dc2626;
+    background-color: #fed7aa;
+  }
+</style>
