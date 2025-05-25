@@ -22,137 +22,64 @@ function stripHtml(html: string) {
 }
 ---
 
-<article class="mastodon-post">
-  <header class="post-header">
-    <div class="account-info">
-      <img src={post.account.avatar} alt={`${post.account.display_name} avatar`} class="avatar" />
-      <div class="account-details">
-        <strong class="display-name">{post.account.display_name}</strong>
-        <span class="username">@{post.account.username}</span>
+<article class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow">
+  <header class="flex justify-between items-start mb-4">
+    <div class="flex items-center space-x-3">
+      <img src={post.account.avatar} alt={`${post.account.display_name} avatar`} class="w-12 h-12 rounded-full object-cover" />
+      <div>
+        <div class="font-semibold text-gray-900">{post.account.display_name}</div>
+        <div class="text-gray-500 text-sm">@{post.account.username}</div>
       </div>
     </div>
-    <time class="post-date" datetime={post.created_at}>
+    <time class="text-gray-500 text-sm whitespace-nowrap ml-4" datetime={post.created_at}>
       {formatDate(post.created_at)}
     </time>
   </header>
 
   {post.spoiler_text && (
-    <div class="spoiler-warning">
-      <strong>Content Warning:</strong> {post.spoiler_text}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+      <div class="text-yellow-800">
+        <strong class="font-semibold">Content Warning:</strong> {post.spoiler_text}
+      </div>
     </div>
   )}
 
-  <div class="post-content" set:html={post.content}></div>
+  <div class="prose prose-sm max-w-none mb-4 text-gray-800 leading-relaxed" set:html={post.content}></div>
 
   {post.media_attachments && post.media_attachments.length > 0 && (
-    <div class="media-attachments">
+    <div class="mb-4 space-y-2">
       {post.media_attachments.map((media) => (
         media.type === 'image' ? (
           <img 
             src={media.url} 
             alt={media.description || 'Media attachment'} 
-            class="media-image"
+            class="rounded-lg max-w-full h-auto border border-gray-200"
           />
         ) : (
-          <a href={media.url} target="_blank" rel="noopener noreferrer">
-            {media.type === 'video' ? '🎥' : media.type === 'audio' ? '🎵' : '📎'} 
-            {media.description || `${media.type} attachment`}
+          <a href={media.url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 hover:underline">
+            <span class="text-lg">
+              {media.type === 'video' ? '🎥' : media.type === 'audio' ? '🎵' : '📎'}
+            </span>
+            <span>{media.description || `${media.type} attachment`}</span>
           </a>
         )
       ))}
     </div>
   )}
 
-  <footer class="post-stats">
-    <span class="stat">💬 {post.replies_count}</span>
-    <span class="stat">🔄 {post.reblogs_count}</span>
-    <span class="stat">⭐ {post.favourites_count}</span>
+  <footer class="flex space-x-6 text-gray-500 text-sm border-t border-gray-100 pt-3">
+    <span class="flex items-center space-x-1">
+      <span>💬</span>
+      <span>{post.replies_count}</span>
+    </span>
+    <span class="flex items-center space-x-1">
+      <span>🔄</span>
+      <span>{post.reblogs_count}</span>
+    </span>
+    <span class="flex items-center space-x-1">
+      <span>⭐</span>
+      <span>{post.favourites_count}</span>
+    </span>
   </footer>
 </article>
 
-<style>
-  .mastodon-post {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    background: white;
-  }
-
-  .post-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-  }
-
-  .account-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-  }
-
-  .account-details {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .display-name {
-    font-weight: bold;
-    color: #333;
-  }
-
-  .username {
-    color: #666;
-    font-size: 0.9em;
-  }
-
-  .post-date {
-    color: #666;
-    font-size: 0.9em;
-  }
-
-  .spoiler-warning {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 4px;
-    padding: 0.5rem;
-    margin-bottom: 0.75rem;
-    color: #856404;
-  }
-
-  .post-content {
-    margin-bottom: 0.75rem;
-    line-height: 1.5;
-  }
-
-  .media-attachments {
-    margin-bottom: 0.75rem;
-  }
-
-  .media-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-    margin: 0.25rem;
-  }
-
-  .post-stats {
-    display: flex;
-    gap: 1rem;
-    color: #666;
-    font-size: 0.9em;
-  }
-
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-</style>

@@ -61,29 +61,36 @@ try {
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Mastodon Archive</title>
+		<style>
+			@import "tailwindcss";
+		</style>
 	</head>
-	<body>
-		<header>
-			<h1>My Mastodon Archive</h1>
-			<p>A static archive of my Mastodon posts</p>
+	<body class="bg-gray-100 text-gray-900 font-sans">
+		<header class="bg-indigo-600 text-white">
+			<div class="max-w-4xl mx-auto px-4 py-8 text-center">
+				<h1 class="text-4xl font-bold mb-2">My Mastodon Archive</h1>
+				<p class="text-indigo-200 text-lg">A static archive of my Mastodon posts</p>
+			</div>
 		</header>
 
-		<main>
+		<main class="max-w-4xl mx-auto px-4 py-8">
 			{posts.length === 0 && (
-				<div class="placeholder">
-					<h2>No posts found</h2>
-					<p>Place your Mastodon archive JSON file at <code>public/mastodon-archive.json</code> to see your posts here.</p>
-					<p>To use this app:</p>
-					<ol>
-						<li>Export your Mastodon archive from your instance</li>
-						<li>Extract the archive and locate the JSON file (usually named like 'outbox.json')</li>
-						<li>Place it in the public folder as 'mastodon-archive.json'</li>
-						<li>Restart the development server</li>
-					</ol>
+				<div class="bg-white rounded-lg shadow-md p-8 text-center border border-gray-200">
+					<h2 class="text-2xl font-semibold text-gray-600 mb-4">No posts found</h2>
+					<p class="text-gray-600 mb-4">Place your Mastodon archive JSON file at <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">public/mastodon-archive.json</code> to see your posts here.</p>
+					<div class="text-left max-w-md mx-auto">
+						<p class="font-semibold mb-2">To use this app:</p>
+						<ol class="list-decimal list-inside space-y-1 text-gray-700">
+							<li>Export your Mastodon archive from your instance</li>
+							<li>Extract the archive and locate the JSON file (usually named like 'outbox.json')</li>
+							<li>Place it in the public folder as 'mastodon-archive.json'</li>
+							<li>Restart the development server</li>
+						</ol>
+					</div>
 				</div>
 			)}
 
-			<div class="posts-container">
+			<div class="space-y-6">
 				{posts.map((post) => (
 					<MastodonPost post={post} />
 				))}
@@ -92,77 +99,3 @@ try {
 	</body>
 </html>
 
-<style>
-	body {
-		font-family: system-ui, sans-serif;
-		line-height: 1.6;
-		margin: 0;
-		padding: 0;
-		background-color: #f5f5f5;
-	}
-
-	header {
-		background: #6364ff;
-		color: white;
-		padding: 2rem 1rem;
-		text-align: center;
-	}
-
-	header h1 {
-		margin: 0 0 0.5rem 0;
-		font-size: 2.5rem;
-	}
-
-	header p {
-		margin: 0;
-		opacity: 0.9;
-	}
-
-	main {
-		max-width: 800px;
-		margin: 2rem auto;
-		padding: 0 1rem;
-	}
-
-	.error {
-		background: #fee;
-		border: 1px solid #fcc;
-		border-radius: 8px;
-		padding: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.error p {
-		margin: 0 0 1rem 0;
-	}
-
-	.error ol {
-		margin: 0;
-	}
-
-	.placeholder {
-		text-align: center;
-		padding: 3rem 1rem;
-		background: white;
-		border-radius: 8px;
-		border: 1px solid #ddd;
-	}
-
-	.placeholder h2 {
-		color: #666;
-		margin-bottom: 1rem;
-	}
-
-	.placeholder code {
-		background: #f0f0f0;
-		padding: 0.25rem 0.5rem;
-		border-radius: 4px;
-		font-family: 'Courier New', monospace;
-	}
-
-	.posts-container {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-</style>
