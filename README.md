@@ -32,6 +32,8 @@ npm run dev
    - Go to your Mastodon instance
    - Navigate to Preferences → Import and export → Data export
    - Download your archive (this may take some time for large archives)
+
+#### Option 1: Single Archive File
 1. **Prepare the JSON file:**
    - Extract the downloaded archive
    - Locate the JSON file (usually named `outbox.json` or similar)
@@ -39,11 +41,31 @@ npm run dev
 1. **Place the file:**
    - Copy `outbox.json` to the `public/` folder in this project
    - The file should be at `public/outbox.json`
-1. Put your `avatar` and `header` in `/public`
-   - Put your files in `/public` and make the file structure match the paths in your JSON, e.g. look for these kinds of paths:
+
+#### Option 2: Multiple Archive Files
+If you have multiple Mastodon archives (e.g., from different time periods or instances), you can combine them:
+
+1. **Prepare the JSON files:**
+   - Extract all your downloaded archives
+   - Place all JSON files in the `public/archives/` folder
+   - Files can have any name (e.g., `outbox1.json`, `outbox2.json`, etc.)
+
+2. **Combine the archives:**
+   ```bash
+   npm run combine-archives
    ```
-   "url":"/<yourserver>/media_attachments/files/<...>/original/file.jpg"
-   ```
+   This script will:
+   - Read all JSON files from `public/archives/`
+   - Remove duplicate posts across files
+   - Sort posts in reverse chronological order (newest first)
+   - Create a combined `public/outbox.json` file
+
+#### Media Files
+Put your `avatar` and `header` in `/public`
+- Put your files in `/public` and make the file structure match the paths in your JSON, e.g. look for these kinds of paths:
+```
+"url":"/<yourserver>/media_attachments/files/<...>/original/file.jpg"
+```
 
 ## Supported Data Formats
 
@@ -139,12 +161,13 @@ The built site will be in the `dist/` folder, ready to deploy to any static host
 
 ## Commands
 
-| Command           | Action                               |
-| ----------------- | ------------------------------------ |
-| `npm install`     | Install dependencies                 |
-| `npm run dev`     | Start dev server at `localhost:4321` |
-| `npm run build`   | Build production site to `./dist/`   |
-| `npm run preview` | Preview production build locally     |
+| Command                | Action                               |
+| ---------------------- | ------------------------------------ |
+| `npm install`          | Install dependencies                 |
+| `npm run dev`          | Start dev server at `localhost:4321` |
+| `npm run build`        | Build production site to `./dist/`   |
+| `npm run preview`      | Preview production build locally     |
+| `npm run combine-archives` | Combine multiple JSON archives into single outbox.json |
 
 ## Customization
 

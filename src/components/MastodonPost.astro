@@ -25,10 +25,22 @@ function stripHtml(html: string) {
 function extractUrls(content: string): string[] {
   const urlRegex = /https?:\/\/[^\s<>"]+/gi;
   const matches = content.match(urlRegex) || [];
-  // Remove duplicates and filter out image/media URLs
-  return [...new Set(matches)].filter(url => 
-    !url.match(/\.(jpg|jpeg|png|gif|webp|mp4|mp3|wav|pdf)$/i)
-  );
+  // Remove duplicates and filter out image/media URLs, hashtags, and user profiles
+  return [...new Set(matches)].filter(url => {
+    // Skip media files
+    if (url.match(/\.(jpg|jpeg|png|gif|webp|mp4|mp3|wav|pdf)$/i)) {
+      return false;
+    }
+    // Skip hashtag URLs (contain /tags/ or /hashtag/)
+    if (url.match(/\/(tags|hashtag)\//i)) {
+      return false;
+    }
+    // Skip user profile URLs (contain @ symbol or /users/ or end with username pattern)
+    if (url.match(/@|\/users\/|\/u\/|\/profile\//i)) {
+      return false;
+    }
+    return true;
+  });
 }
 
 function cleanMastodonLinks(content: string): string {
