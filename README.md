@@ -2,15 +2,6 @@
 
 A static website generator for displaying Mastodon archive data using Astro. Transform your exported Mastodon posts into a beautiful, searchable static website.
 
-## Features
-
-- 📱 Responsive design optimized for reading posts
-- 🎨 Clean, minimal interface inspired by social media feeds
-- 📄 Static site generation - no server required
-- 🔍 Support for multiple Mastodon export formats
-- 🖼️ Media attachment support (images, videos, audio)
-- ⚡ Fast loading with Astro's optimizations
-
 ## Getting Started
 
 ### Prerequisites
@@ -41,22 +32,18 @@ npm run dev
    - Go to your Mastodon instance
    - Navigate to Preferences → Import and export → Data export
    - Download your archive (this may take some time for large archives)
-
-2. **Prepare the JSON file:**
+1. **Prepare the JSON file:**
    - Extract the downloaded archive
    - Locate the JSON file (usually named `outbox.json` or similar)
    - Rename it to `outbox.json`
-
-3. **Place the file:**
+1. **Place the file:**
    - Copy `outbox.json` to the `public/` folder in this project
    - The file should be at `public/outbox.json`
-
-4. **Restart the dev server:**
-   ```bash
-   npm run dev
+1. Put your `avatar` and `header` in `/public`
+   - Put your files in `/public` and make the file structure match the paths in your JSON, e.g. look for these kinds of paths:
    ```
-
-Your posts should now appear on the website!
+   "url":"/<yourserver>/media_attachments/files/<...>/original/file.jpg"
+   ```
 
 ## Supported Data Formats
 
@@ -166,11 +153,3 @@ The main styles are in `src/pages/index.astro` and `src/components/MastodonPost.
 
 ### Data Processing
 To modify how archive data is processed, edit `src/utils/loadArchive.ts`.
-
-## Contributing
-
-Feel free to submit issues and pull requests to improve the application.
-
-## License
-
-MIT License - feel free to use this project however you'd like.
