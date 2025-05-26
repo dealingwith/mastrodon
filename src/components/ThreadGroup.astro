@@ -1,0 +1,93 @@
+---
+import MastodonPost from './MastodonPost.astro';
+import type { ThreadGroup } from '../utils/threadProcessor';
+
+interface Props {
+  thread: ThreadGroup;
+}
+
+const { thread } = Astro.props;
+const { posts } = thread;
+
+// Only show as thread if there are multiple posts
+const isThread = posts.length > 1;
+---
+
+<div class={`thread-container ${isThread ? 'is-thread' : ''}`}>
+  {posts.map((post, index) => (
+    <div 
+      class={`thread-post depth-${post.depth} ${post.isReply ? 'is-reply' : 'is-root'}`}
+      data-thread-position={post.threadPosition}
+    >
+      
+      {/* Reply indicator */}
+      {post.isReply && (
+        <div class="reply-indicator">
+          <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+          </svg>
+          <span class="text-xs text-stone-500 ml-1">Replying to thread</span>
+        </div>
+      )}
+      
+      {/* The actual post */}
+      <div class="post-content">
+        <MastodonPost post={post} />
+      </div>
+      
+    </div>
+  ))}
+  
+  {/* Thread summary for long threads */}
+  {isThread && posts.length > 3 && (
+    <div class="thread-summary">
+      <div class="text-sm text-stone-600 bg-orange-50 px-3 py-2 rounded-lg border border-orange-200">
+        📝 Thread with {posts.length} posts
+      </div>
+    </div>
+  )}
+</div>
+
+<style>
+  .thread-container {
+    position: relative;
+  }
+  
+  .thread-post {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  
+  .thread-post.is-reply {
+    margin-left: 2rem;
+  }
+  
+  .thread-post.depth-1 { margin-left: 2rem; }
+  .thread-post.depth-2 { margin-left: 4rem; }
+  .thread-post.depth-3 { margin-left: 6rem; }
+  
+  .reply-indicator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  
+  .thread-summary {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  .post-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Subtle background for threaded posts */
+  .is-thread .thread-post.is-reply .post-content {
+    background: linear-gradient(90deg, rgba(254, 215, 170, 0.1) 0%, transparent 100%);
+    border-radius: 0.75rem;
+    margin: -0.25rem;
+    padding: 0.25rem;
+  }
+</style>

@@ -1,6 +1,8 @@
 ---
 import MastodonPost from '../components/MastodonPost.astro';
+import ThreadGroup from '../components/ThreadGroup.astro';
 import type { MastodonPost as MastodonPostType } from '../types/mastodon';
+import { processThreads } from '../utils/threadProcessor';
 
 // Load Mastodon archive from JSON file
 let posts: MastodonPostType[] = [];
@@ -16,14 +18,20 @@ try {
       .filter((item: any) => item.type === 'Create' && item.object && item.object.type === 'Note')
       .map((item: any) => {
         const obj = item.object;
+        
+        // Extract numeric ID from URL
+        const idMatch = obj.id?.match(/\/statuses\/(\d+)$/);
+        const numericId = idMatch ? idMatch[1] : obj.id;
+        
         return {
-          id: obj.id || Math.random().toString(),
+          id: numericId || Math.random().toString(),
           created_at: obj.published || new Date().toISOString(),
           content: obj.content || '',
           url: obj.url || obj.id,
           visibility: 'public',
           sensitive: obj.sensitive || false,
           spoiler_text: obj.summary || '',
+          inReplyTo: obj.inReplyTo, // Include the inReplyTo field
           media_attachments: obj.attachment?.map((att: any) => ({
             id: att.id || Math.random().toString(),
             type: att.mediaType?.includes('image') ? 'image' : 
@@ -52,6 +60,9 @@ try {
 } catch (error) {
   console.log('Could not load mastodon-archive.json:', error);
 }
+
+// Process posts into threads
+const threads = processThreads(posts);
 ---
 
 <html lang="en">
@@ -121,8 +132,8 @@ try {
 			)}
 
 			<div class="space-y-8">
-				{posts.map((post) => (
-					<MastodonPost post={post} />
+				{threads.map((thread) => (
+					<ThreadGroup thread={thread} />
 				))}
 			</div>
 		</main>
