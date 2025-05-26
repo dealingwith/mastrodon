@@ -22,4 +22,4 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
-public/mastodon-archive.json
+public/outbox.json

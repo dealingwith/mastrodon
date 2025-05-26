@@ -45,11 +45,11 @@ npm run dev
 2. **Prepare the JSON file:**
    - Extract the downloaded archive
    - Locate the JSON file (usually named `outbox.json` or similar)
-   - Rename it to `mastodon-archive.json`
+   - Rename it to `outbox.json`
 
 3. **Place the file:**
-   - Copy `mastodon-archive.json` to the `public/` folder in this project
-   - The file should be at `public/mastodon-archive.json`
+   - Copy `outbox.json` to the `public/` folder in this project
+   - The file should be at `public/outbox.json`
 
 4. **Restart the dev server:**
    ```bash
@@ -137,7 +137,7 @@ The built site will be in the `dist/` folder, ready to deploy to any static host
 ```
 /
 ├── public/
-│   └── mastodon-archive.json    # Place your archive here
+│   └── outbox.json    # Place your archive here
 ├── src/
 │   ├── components/
 │   │   └── MastodonPost.astro   # Post display component
@@ -152,12 +152,12 @@ The built site will be in the `dist/` folder, ready to deploy to any static host
 
 ## Commands
 
-| Command | Action |
-|---------|--------|
-| `npm install` | Install dependencies |
-| `npm run dev` | Start dev server at `localhost:4321` |
-| `npm run build` | Build production site to `./dist/` |
-| `npm run preview` | Preview production build locally |
+| Command           | Action                               |
+| ----------------- | ------------------------------------ |
+| `npm install`     | Install dependencies                 |
+| `npm run dev`     | Start dev server at `localhost:4321` |
+| `npm run build`   | Build production site to `./dist/`   |
+| `npm run preview` | Preview production build locally     |
 
 ## Customization
 

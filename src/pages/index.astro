@@ -1,21 +1,21 @@
 ---
-import MastodonPost from '../components/MastodonPost.astro';
-import ThreadGroup from '../components/ThreadGroup.astro';
-import type { MastodonPost as MastodonPostType } from '../types/mastodon';
-import { processThreads } from '../utils/threadProcessor';
+import MastodonPost from "../components/MastodonPost.astro";
+import ThreadGroup from "../components/ThreadGroup.astro";
+import type { MastodonPost as MastodonPostType } from "../types/mastodon";
+import { processThreads } from "../utils/threadProcessor";
 
 // Function to find image file by base name (supports different extensions)
 function findImageFile(baseName: string): string {
   // Define preferred extensions in order of preference
-  const extensions = ['jpeg', 'jpg', 'png', 'webp', 'gif', 'svg'];
-  
+  const extensions = ["jpeg", "jpg", "png", "webp", "gif", "svg"];
+
   // For now, since you mentioned header is .jpeg, let's set up a simple mapping
   const imageMap: Record<string, string> = {
-    'header': 'jpeg',
-    'avatar': 'jpg'  // Update this if your avatar has a different extension
+    header: "jpeg",
+    avatar: "jpg", // Update this if your avatar has a different extension
   };
-  
-  const extension = imageMap[baseName] || 'jpg';
+
+  const extension = imageMap[baseName] || "jpg";
   return `/${baseName}.${extension}`;
 }
 
@@ -24,56 +24,67 @@ let posts: MastodonPostType[] = [];
 
 try {
   // Import the JSON file directly
-  const archiveData = await import('../../public/mastodon-archive.json');
+  const archiveData = await import("../../public/outbox.json");
   const data = archiveData.default;
-  
+
   // Handle ActivityPub format
   if (data.orderedItems) {
     posts = data.orderedItems
-      .filter((item: any) => item.type === 'Create' && item.object && item.object.type === 'Note')
+      .filter(
+        (item: any) =>
+          item.type === "Create" && item.object && item.object.type === "Note"
+      )
       .map((item: any) => {
         const obj = item.object;
-        
+
         // Extract numeric ID from URL
         const idMatch = obj.id?.match(/\/statuses\/(\d+)$/);
         const numericId = idMatch ? idMatch[1] : obj.id;
-        
+
         return {
           id: numericId || Math.random().toString(),
           created_at: obj.published || new Date().toISOString(),
-          content: obj.content || '',
+          content: obj.content || "",
           url: obj.url || obj.id,
-          visibility: 'public',
+          visibility: "public",
           sensitive: obj.sensitive || false,
-          spoiler_text: obj.summary || '',
+          spoiler_text: obj.summary || "",
           inReplyTo: obj.inReplyTo, // Include the inReplyTo field
-          media_attachments: obj.attachment?.map((att: any) => ({
-            id: att.id || Math.random().toString(),
-            type: att.mediaType?.includes('image') ? 'image' : 
-                  att.mediaType?.includes('video') ? 'video' : 
-                  att.mediaType?.includes('audio') ? 'audio' : 'unknown',
-            url: att.url || att.href,
-            preview_url: att.url || att.href,
-            description: att.name || att.summary
-          })) || [],
+          media_attachments:
+            obj.attachment?.map((att: any) => ({
+              id: att.id || Math.random().toString(),
+              type: att.mediaType?.includes("image")
+                ? "image"
+                : att.mediaType?.includes("video")
+                  ? "video"
+                  : att.mediaType?.includes("audio")
+                    ? "audio"
+                    : "unknown",
+              url: att.url || att.href,
+              preview_url: att.url || att.href,
+              description: att.name || att.summary,
+            })) || [],
           account: {
-            id: obj.attributedTo || 'unknown',
-            username: obj.attributedTo?.split('/').pop() || 'user',
-            display_name: obj.attributedTo?.split('/').pop() || 'User',
-            avatar: findImageFile('avatar'),
-            url: obj.attributedTo || ''
+            id: obj.attributedTo || "unknown",
+            username: obj.attributedTo?.split("/").pop() || "user",
+            display_name: obj.attributedTo?.split("/").pop() || "User",
+            avatar: findImageFile("avatar"),
+            url: obj.attributedTo || "",
           },
           replies_count: obj.replies?.totalItems || 0,
           reblogs_count: obj.shares?.totalItems || 0,
-          favourites_count: obj.likes?.totalItems || 0
+          favourites_count: obj.likes?.totalItems || 0,
         };
       });
   }
-  
+
   // Sort by date (newest first)
-  posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  posts.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 } catch (error) {
-  console.log('Could not load mastodon-archive.json:', error);
+  console.log("Could not load outbox.json:", error);
 }
 
 // Process posts into threads
@@ -81,59 +92,90 @@ const threads = processThreads(posts);
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Mastodon Archive</title>
-		<style>
-			@import "tailwindcss";
-		</style>
-	</head>
-	<body class="bg-orange-50 text-stone-900 font-sans">
-		<header class="relative text-white overflow-hidden">
-			<!-- Header background image -->
-			<div class="absolute inset-0">
-				<img src={findImageFile('header')} alt="Header background" class="w-full h-full object-cover" />
-			</div>
-			
-			<!-- Header content -->
-			<div class="relative max-w-2xl mx-auto px-4 py-12 text-center">
-				<h1 class="text-5xl font-bold mb-3 text-shadow-lg">My Mastodon Archive</h1>
-				<p class="text-amber-100 text-xl font-medium tracking-wide">A curated collection of my social thoughts</p>
-				<div class="mt-6 w-24 h-1 bg-amber-300 mx-auto rounded-full opacity-80"></div>
-			</div>
-		</header>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Mastodon Archive</title>
+    <style>
+      @import "tailwindcss";
+    </style>
+  </head>
+  <body class="bg-orange-50 text-stone-900 font-sans">
+    <header class="relative text-white overflow-hidden">
+      <!-- Header background image -->
+      <div class="absolute inset-0">
+        <img
+          src={findImageFile("header")}
+          alt="Header background"
+          class="w-full h-full object-cover"
+        />
+      </div>
 
-		<main class="max-w-2xl mx-auto px-4 py-12">
-			{posts.length === 0 && (
-				<div class="bg-white rounded-xl shadow-lg p-10 text-center border border-orange-200">
-					<div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-						<svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-						</svg>
-					</div>
-					<h2 class="text-3xl font-bold text-stone-700 mb-6">No posts found</h2>
-					<p class="text-stone-600 mb-6 text-lg">Place your Mastodon archive JSON file at <code class="bg-orange-100 px-3 py-1 rounded-md text-sm font-mono text-orange-800">public/mastodon-archive.json</code> to see your posts here.</p>
-					<div class="text-left max-w-lg mx-auto bg-amber-50 p-6 rounded-lg border border-amber-200">
-						<p class="font-bold mb-4 text-amber-800 text-lg">Setup Instructions:</p>
-						<ol class="list-decimal list-inside space-y-3 text-stone-700">
-							<li>Export your Mastodon archive from your instance</li>
-							<li>Extract the archive and locate the JSON file (usually named like 'outbox.json')</li>
-							<li>Place it in the public folder as 'mastodon-archive.json'</li>
-							<li>Restart the development server</li>
-						</ol>
-					</div>
-				</div>
-			)}
+      <!-- Header content -->
+      <div class="relative max-w-2xl mx-auto px-4 py-12 text-center">
+        <h1 class="text-5xl font-bold mb-3 text-shadow-lg">
+          My Mastodon Archive
+        </h1>
+        <p class="text-amber-100 text-xl font-medium tracking-wide">
+          A curated collection of my social thoughts
+        </p>
+        <div class="mt-6 w-24 h-1 bg-amber-300 mx-auto rounded-full opacity-80">
+        </div>
+      </div>
+    </header>
 
-			<div class="space-y-8">
-				{threads.map((thread) => (
-					<ThreadGroup thread={thread} />
-				))}
-			</div>
-		</main>
-	</body>
+    <main class="max-w-2xl mx-auto px-4 py-12">
+      {
+        posts.length === 0 && (
+          <div class="bg-white rounded-xl shadow-lg p-10 text-center border border-orange-200">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg
+                class="w-8 h-8 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-stone-700 mb-6">
+              No posts found
+            </h2>
+            <p class="text-stone-600 mb-6 text-lg">
+              Place your Mastodon archive JSON file at{" "}
+              <code class="bg-orange-100 px-3 py-1 rounded-md text-sm font-mono text-orange-800">
+                public/outbox.json
+              </code>{" "}
+              to see your posts here.
+            </p>
+            <div class="text-left max-w-lg mx-auto bg-amber-50 p-6 rounded-lg border border-amber-200">
+              <p class="font-bold mb-4 text-amber-800 text-lg">
+                Setup Instructions:
+              </p>
+              <ol class="list-decimal list-inside space-y-3 text-stone-700">
+                <li>Export your Mastodon archive from your instance</li>
+                <li>
+                  Extract the archive and locate the JSON file (usually named
+                  like 'outbox.json')
+                </li>
+                <li>Place it in the public folder as 'outbox.json'</li>
+                <li>Restart the development server</li>
+              </ol>
+            </div>
+          </div>
+        )
+      }
+
+      <div class="space-y-8">
+        {threads.map((thread) => <ThreadGroup thread={thread} />)}
+      </div>
+    </main>
+  </body>
 </html>
-
