@@ -1,14 +1,14 @@
 ---
 import type { MastodonPost } from "../types/mastodon";
-import LinkPreview from './LinkPreview.astro';
-import VideoIcon from './icons/VideoIcon.astro';
-import AudioIcon from './icons/AudioIcon.astro';
-import AttachmentIcon from './icons/AttachmentIcon.astro';
-import ReplyIcon from './icons/ReplyIcon.astro';
-import RepostIcon from './icons/RepostIcon.astro';
-import StarIcon from './icons/StarIcon.astro';
-import LinkIcon from './icons/LinkIcon.astro';
-import ExternalArrowIcon from './icons/ExternalArrowIcon.astro';
+import LinkPreview from "./LinkPreview.astro";
+import VideoIcon from "./icons/VideoIcon.astro";
+import AudioIcon from "./icons/AudioIcon.astro";
+import AttachmentIcon from "./icons/AttachmentIcon.astro";
+import ReplyIcon from "./icons/ReplyIcon.astro";
+import RepostIcon from "./icons/RepostIcon.astro";
+import StarIcon from "./icons/StarIcon.astro";
+import LinkIcon from "./icons/LinkIcon.astro";
+import ExternalArrowIcon from "./icons/ExternalArrowIcon.astro";
 
 interface Props {
   post: MastodonPost;
@@ -33,8 +33,9 @@ function stripHtml(html: string) {
 function extractUrls(content: string): string[] {
   const urlRegex = /https?:\/\/[^\s<>"]+/gi;
   const matches = content.match(urlRegex) || [];
+
   // Remove duplicates and filter out image/media URLs, hashtags, and user profiles
-  return [...new Set(matches)].filter(url => {
+  return [...new Set(matches)].filter((url) => {
     // Skip media files
     if (url.match(/\.(jpg|jpeg|png|gif|webp|mp4|mp3|wav|pdf)$/i)) {
       return false;
@@ -58,16 +59,18 @@ function cleanMastodonLinks(content: string): string {
     (match, attributes, start, middle, end) => {
       // Extract href from attributes
       const hrefMatch = attributes.match(/href="([^"]*?)"/);
-      const href = hrefMatch ? hrefMatch[1] : '#';
-      
+      const href = hrefMatch ? hrefMatch[1] : "#";
+
       // Generic link icon and external arrow icon (keeping as HTML strings since they're used in replace operations)
-      const linkIcon = '<svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.1m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>';
-      const arrowIcon = '<svg class="inline w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>';
-      
+      const linkIcon =
+        '<svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.1m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>';
+      const arrowIcon =
+        '<svg class="inline w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>';
+
       // Create a clean domain display with icons
       try {
         const url = new URL(href);
-        const domain = url.hostname.replace(/^www\./, '');
+        const domain = url.hostname.replace(/^www\./, "");
         return `<a${attributes}>${linkIcon}${domain}${arrowIcon}</a>`;
       } catch {
         return `<a${attributes}>${linkIcon}${middle}...${arrowIcon}</a>`;
@@ -76,8 +79,8 @@ function cleanMastodonLinks(content: string): string {
   );
 }
 
-const urls = extractUrls(post.content);
 const cleanContent = cleanMastodonLinks(post.content);
+const urls = extractUrls(cleanContent);
 ---
 
 <article
@@ -159,32 +162,28 @@ const cleanContent = cleanMastodonLinks(post.content);
     )
   }
 
-  {urls.length > 0 && (
-    <div class="mb-5 space-y-3">
-      {urls.map((url) => (
-        <LinkPreview url={url} />
-      ))}
-    </div>
-  )}
+  {
+    urls.length > 0 && (
+      <div class="mb-5 space-y-3">
+        {urls.map((url) => (
+          <LinkPreview url={url} />
+        ))}
+      </div>
+    )
+  }
 
   <footer
     class="flex space-x-8 text-stone-600 text-sm border-t border-orange-100 pt-4"
   >
-    <span
-      class="flex items-center space-x-2"
-    >
+    <span class="flex items-center space-x-2">
       <ReplyIcon />
       <span class="font-medium">{post.replies_count}</span>
     </span>
-    <span
-      class="flex items-center space-x-2"
-    >
+    <span class="flex items-center space-x-2">
       <RepostIcon />
       <span class="font-medium">{post.reblogs_count}</span>
     </span>
-    <span
-      class="flex items-center space-x-2"
-    >
+    <span class="flex items-center space-x-2">
       <StarIcon />
       <span class="font-medium">{post.favourites_count}</span>
     </span>
@@ -200,13 +199,12 @@ const cleanContent = cleanMastodonLinks(post.content);
     text-decoration-color: #fed7aa;
     transition: all 0.2s ease;
   }
-  
+
   .prose a:hover {
     color: #dc2626;
     text-decoration-color: #ef4444;
   }
-  
-  
+
   /* Style mentions and hashtags */
   .prose a[href*="/tags/"]:not([href^="http"]) {
     color: #d97706;
@@ -217,12 +215,12 @@ const cleanContent = cleanMastodonLinks(post.content);
     border-radius: 0.25rem;
     transition: all 0.2s ease;
   }
-  
+
   .prose a[href*="/tags/"]:not([href^="http"]):hover {
     color: #ea580c;
     background-color: #fef3c7;
   }
-  
+
   .prose a.mention {
     color: #ea580c;
     font-weight: 600;
@@ -232,7 +230,7 @@ const cleanContent = cleanMastodonLinks(post.content);
     border-radius: 0.25rem;
     transition: all 0.2s ease;
   }
-  
+
   .prose a.mention:hover {
     color: #dc2626;
     background-color: #fed7aa;
