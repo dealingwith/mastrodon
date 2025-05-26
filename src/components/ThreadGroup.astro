@@ -1,6 +1,7 @@
 ---
 import MastodonPost from './MastodonPost.astro';
 import type { ThreadGroup } from '../utils/threadProcessor';
+import ReplyArrowIcon from './icons/ReplyArrowIcon.astro';
 
 interface Props {
   thread: ThreadGroup;
@@ -23,9 +24,7 @@ const isThread = posts.length > 1;
       {/* Reply indicator */}
       {post.isReply && (
         <div class="reply-indicator">
-          <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-          </svg>
+          <ReplyArrowIcon class="w-4 h-4 text-stone-400" />
           <span class="text-xs text-stone-500 ml-1">Replying to thread</span>
         </div>
       )}

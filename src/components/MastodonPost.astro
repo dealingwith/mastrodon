@@ -1,6 +1,14 @@
 ---
 import type { MastodonPost } from "../types/mastodon";
 import LinkPreview from './LinkPreview.astro';
+import VideoIcon from './icons/VideoIcon.astro';
+import AudioIcon from './icons/AudioIcon.astro';
+import AttachmentIcon from './icons/AttachmentIcon.astro';
+import ReplyIcon from './icons/ReplyIcon.astro';
+import RepostIcon from './icons/RepostIcon.astro';
+import StarIcon from './icons/StarIcon.astro';
+import LinkIcon from './icons/LinkIcon.astro';
+import ExternalArrowIcon from './icons/ExternalArrowIcon.astro';
 
 interface Props {
   post: MastodonPost;
@@ -52,7 +60,7 @@ function cleanMastodonLinks(content: string): string {
       const hrefMatch = attributes.match(/href="([^"]*?)"/);
       const href = hrefMatch ? hrefMatch[1] : '#';
       
-      // Generic link icon and external arrow icon
+      // Generic link icon and external arrow icon (keeping as HTML strings since they're used in replace operations)
       const linkIcon = '<svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.1m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>';
       const arrowIcon = '<svg class="inline w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>';
       
@@ -135,47 +143,11 @@ const cleanContent = cleanMastodonLinks(post.content);
               class="inline-flex items-center space-x-3 text-orange-700 hover:text-red-700 hover:underline bg-orange-50 px-4 py-2 rounded-lg border border-orange-200"
             >
               {media.type === "video" ? (
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
+                <VideoIcon />
               ) : media.type === "audio" ? (
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                  />
-                </svg>
+                <AudioIcon />
               ) : (
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                  />
-                </svg>
+                <AttachmentIcon />
               )}
               <span class="font-medium">
                 {media.description || `${media.type} attachment`}
@@ -201,55 +173,19 @@ const cleanContent = cleanMastodonLinks(post.content);
     <span
       class="flex items-center space-x-2"
     >
-      <svg
-        class="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-        ></path>
-      </svg>
+      <ReplyIcon />
       <span class="font-medium">{post.replies_count}</span>
     </span>
     <span
       class="flex items-center space-x-2"
     >
-      <svg
-        class="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-        ></path>
-      </svg>
+      <RepostIcon />
       <span class="font-medium">{post.reblogs_count}</span>
     </span>
     <span
       class="flex items-center space-x-2"
     >
-      <svg
-        class="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-        ></path>
-      </svg>
+      <StarIcon />
       <span class="font-medium">{post.favourites_count}</span>
     </span>
   </footer>
