@@ -1,10 +1,10 @@
 ---
-import MastodonPost from "../components/MastodonPost.astro";
 import ThreadGroup from "../components/ThreadGroup.astro";
 import type { MastodonPost as MastodonPostType } from "../types/mastodon";
 import { processThreads } from "../utils/threadProcessor";
+import type { GetStaticPaths, Page } from "astro";
 
-export async function getStaticPaths({ paginate }) {
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   // Function to find image file by base name (supports different extensions)
   function findImageFile(baseName: string): string {
     // Define preferred extensions in order of preference
@@ -97,7 +97,7 @@ export async function getStaticPaths({ paginate }) {
   
   // Paginate threads instead of individual posts
   return paginate(threads, { pageSize: 10 });
-}
+};
 
 // Function to find image file by base name (supports different extensions)
 function findImageFile(baseName: string): string {
@@ -114,7 +114,11 @@ function findImageFile(baseName: string): string {
   return `/${baseName}.${extension}`;
 }
 
-const { page } = Astro.props;
+export interface Props {
+  page: Page<any>;
+}
+
+const { page }: Props = Astro.props;
 
 // Calculate visible page numbers
 function getVisiblePages(current: number, total: number) {
