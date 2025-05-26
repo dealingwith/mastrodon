@@ -4,6 +4,21 @@ import ThreadGroup from '../components/ThreadGroup.astro';
 import type { MastodonPost as MastodonPostType } from '../types/mastodon';
 import { processThreads } from '../utils/threadProcessor';
 
+// Function to find image file by base name (supports different extensions)
+function findImageFile(baseName: string): string {
+  // Define preferred extensions in order of preference
+  const extensions = ['jpeg', 'jpg', 'png', 'webp', 'gif', 'svg'];
+  
+  // For now, since you mentioned header is .jpeg, let's set up a simple mapping
+  const imageMap: Record<string, string> = {
+    'header': 'jpeg',
+    'avatar': 'jpg'  // Update this if your avatar has a different extension
+  };
+  
+  const extension = imageMap[baseName] || 'jpg';
+  return `/${baseName}.${extension}`;
+}
+
 // Load Mastodon archive from JSON file
 let posts: MastodonPostType[] = [];
 
@@ -45,7 +60,7 @@ try {
             id: obj.attributedTo || 'unknown',
             username: obj.attributedTo?.split('/').pop() || 'user',
             display_name: obj.attributedTo?.split('/').pop() || 'User',
-            avatar: '/favicon.svg',
+            avatar: findImageFile('avatar'),
             url: obj.attributedTo || ''
           },
           replies_count: obj.replies?.totalItems || 0,
@@ -77,32 +92,14 @@ const threads = processThreads(posts);
 		</style>
 	</head>
 	<body class="bg-orange-50 text-stone-900 font-sans">
-		<header class="relative bg-gradient-to-br from-orange-600 via-amber-600 to-red-700 text-white overflow-hidden">
-			<!-- Textured pattern overlay -->
-			<div class="absolute inset-0 opacity-20">
-				<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 w-full h-full">
-					<g fill="none" fill-rule="evenodd">
-						<g fill="currentColor" fill-opacity="0.3">
-							<circle cx="30" cy="30" r="2"/>
-							<circle cx="15" cy="15" r="1"/>
-							<circle cx="45" cy="15" r="1"/>
-							<circle cx="15" cy="45" r="1"/>
-							<circle cx="45" cy="45" r="1"/>
-							<path d="M30 15l5 5-5 5-5-5z"/>
-							<path d="M15 30l5 5-5 5-5-5z"/>
-							<path d="M45 30l5 5-5 5-5-5z"/>
-						</g>
-					</g>
-				</svg>
+		<header class="relative text-white overflow-hidden">
+			<!-- Header background image -->
+			<div class="absolute inset-0">
+				<img src={findImageFile('header')} alt="Header background" class="w-full h-full object-cover" />
 			</div>
 			
 			<!-- Header content -->
 			<div class="relative max-w-2xl mx-auto px-4 py-12 text-center">
-				<div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4 backdrop-blur-sm">
-					<svg class="w-8 h-8 text-amber-100" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-					</svg>
-				</div>
 				<h1 class="text-5xl font-bold mb-3 text-shadow-lg">My Mastodon Archive</h1>
 				<p class="text-amber-100 text-xl font-medium tracking-wide">A curated collection of my social thoughts</p>
 				<div class="mt-6 w-24 h-1 bg-amber-300 mx-auto rounded-full opacity-80"></div>
