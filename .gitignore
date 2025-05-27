@@ -25,3 +25,4 @@ pnpm-debug.log*
 public/outbox.json
 public/indiewebsocial
 public/archives/
+claude_code_log.txt
