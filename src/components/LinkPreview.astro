@@ -16,13 +16,19 @@ interface LinkPreviewData {
 }
 
 async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000); // 8 seconds
+
   try {
     const response = await fetch(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (compatible; Mastrodon/1.0; +https://example.com/bot)",
       },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeout);
 
     if (!response.ok) return null;
 
@@ -70,7 +76,11 @@ async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
 
     return preview;
   } catch (error) {
-    console.error("Error fetching link preview for: ", url);
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("Fetch timed out for: ", url);
+    } else {
+      console.error("Error fetching link preview for: ", url, error);
+    }
     return null;
   }
 }

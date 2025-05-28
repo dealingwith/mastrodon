@@ -48,6 +48,10 @@ function extractUrls(content: string): string[] {
     if (url.match(/@|\/users\/|\/u\/|\/profile\//i)) {
       return false;
     }
+    // Skip URLs that are just www or www.
+    if (url.match(/^https?:\/\/(www\.?)$/i)) {
+      return false;
+    }
     return true;
   });
 }

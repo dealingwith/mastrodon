@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:verbose": "astro build --devOutput",
     "preview": "astro preview",
     "astro": "astro",
     "combine-archives": "node scripts/combine-archives.js"
