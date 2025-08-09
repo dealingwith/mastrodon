@@ -130,10 +130,106 @@ async function combineArchives() {
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(outbox, null, 2));
     console.log(`✅ Created ${OUTPUT_FILE} with ${sortedPosts.length} posts`);
     
+    // Copy media files
+    await copyMediaFiles(sortedPosts);
+    
   } catch (error) {
     console.error('❌ Error combining archives:', error);
     process.exit(1);
   }
+}
+
+// Extract all media URLs from posts and copy the corresponding files
+async function copyMediaFiles(posts) {
+  console.log('\n📁 Copying media files...');
+  
+  const mediaUrls = new Set();
+  const logFile = './scripts/media-copy-log.txt';
+  const logEntries = [];
+  
+  // Extract all media URLs from posts
+  posts.forEach(post => {
+    const attachments = post.attachment || post.object?.attachment || [];
+    attachments.forEach(att => {
+      if (att.url && att.url.startsWith('/')) {
+        mediaUrls.add(att.url);
+      }
+    });
+  });
+  
+  console.log(`Found ${mediaUrls.size} unique media files to copy`);
+  logEntries.push(`=== Media Copy Log - ${new Date().toISOString()} ===`);
+  logEntries.push(`Found ${mediaUrls.size} unique media files to copy\n`);
+  
+  let copiedCount = 0;
+  let skippedCount = 0;
+  
+  for (const mediaUrl of mediaUrls) {
+    try {
+      // Find source file in archives
+      const sourceFile = findMediaFileInArchives(mediaUrl);
+      if (sourceFile) {
+        const destPath = `./public${mediaUrl}`;
+        const destDir = path.dirname(destPath);
+        
+        // Create destination directory if it doesn't exist
+        if (!fs.existsSync(destDir)) {
+          fs.mkdirSync(destDir, { recursive: true });
+        }
+        
+        // Copy file if it doesn't already exist
+        if (!fs.existsSync(destPath)) {
+          fs.copyFileSync(sourceFile, destPath);
+          copiedCount++;
+          logEntries.push(`✅ COPIED: ${mediaUrl} <- ${sourceFile}`);
+        } else {
+          skippedCount++;
+          logEntries.push(`⏭️  SKIPPED: ${mediaUrl} (already exists)`);
+        }
+      } else {
+        console.log(`⚠️  Could not find source file for: ${mediaUrl}`);
+        skippedCount++;
+        logEntries.push(`⚠️  NOT FOUND: ${mediaUrl} (source file not found in any archive)`);
+      }
+    } catch (error) {
+      console.log(`❌ Error copying ${mediaUrl}: ${error.message}`);
+      skippedCount++;
+      logEntries.push(`❌ ERROR: ${mediaUrl} - ${error.message}`);
+    }
+  }
+  
+  logEntries.push(`\n=== Summary ===`);
+  logEntries.push(`${copiedCount} files copied`);
+  logEntries.push(`${skippedCount} files skipped/failed`);
+  logEntries.push(`Total: ${mediaUrls.size} files processed`);
+  
+  // Append log to file (with newlines for separation between runs)
+  const logContent = '\n' + logEntries.join('\n') + '\n';
+  fs.appendFileSync(logFile, logContent);
+  console.log(`📁 Media copy complete: ${copiedCount} copied, ${skippedCount} skipped/failed`);
+  console.log(`📝 Detailed log appended to: ${logFile}`);
+}
+
+// Find a media file in the archives directories
+function findMediaFileInArchives(mediaUrl) {
+  // Convert URL path to file system path
+  // e.g., "/indiewebsocial/media_attachments/files/110/634/..." 
+  // becomes "media_attachments/files/110/634/..."
+  const relativePath = mediaUrl.substring(mediaUrl.indexOf('media_attachments'));
+  
+  // Search in all archive directories
+  const archiveDirs = fs.readdirSync(ARCHIVES_DIR, { withFileTypes: true })
+    .filter(item => item.isDirectory())
+    .map(item => path.join(ARCHIVES_DIR, item.name));
+  
+  for (const archiveDir of archiveDirs) {
+    const possiblePath = path.join(archiveDir, relativePath);
+    if (fs.existsSync(possiblePath)) {
+      return possiblePath;
+    }
+  }
+  
+  return null;
 }
 
 combineArchives();
