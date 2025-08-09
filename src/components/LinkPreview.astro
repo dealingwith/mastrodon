@@ -15,6 +15,22 @@ interface LinkPreviewData {
   favicon?: string;
 }
 
+// Decode common HTML entities in titles and descriptions
+function decodeHtmlEntities(text: string): string {
+  if (!text) return text;
+  
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .replace(/&#x3D;/g, '=');
+}
+
 async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000); // 8 seconds
@@ -57,10 +73,10 @@ async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
       /<link[^>]*rel="(?:shortcut )?icon"[^>]*href="([^"]*)"[^>]*>/i
     );
 
-    preview.title = ogTitleMatch?.[1] || titleMatch?.[1] || "";
-    preview.description = ogDescMatch?.[1] || descMatch?.[1] || "";
+    preview.title = decodeHtmlEntities(ogTitleMatch?.[1] || titleMatch?.[1] || "");
+    preview.description = decodeHtmlEntities(ogDescMatch?.[1] || descMatch?.[1] || "");
     preview.image = ogImageMatch?.[1] || "";
-    preview.siteName = ogSiteMatch?.[1] || new URL(url).hostname;
+    preview.siteName = decodeHtmlEntities(ogSiteMatch?.[1] || new URL(url).hostname);
     preview.favicon = faviconMatch?.[1] || "";
 
     // Make relative URLs absolute
