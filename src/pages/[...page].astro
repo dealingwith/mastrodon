@@ -8,6 +8,34 @@ import ChevronRightIcon from "../components/icons/ChevronRightIcon.astro";
 import DocumentIcon from "../components/icons/DocumentIcon.astro";
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  // Filter out replies to other accounts (keep original posts and self-replies)
+  function filterOutRepliesToOthers(posts: MastodonPostType[]): MastodonPostType[] {
+    return posts.filter(post => {
+      const inReplyTo = (post as any).inReplyTo;
+      
+      // Include if not a reply
+      if (!inReplyTo) {
+        return true;
+      }
+      
+      // Get the user's attributedTo URL to identify self-replies
+      const attributedTo = post.account?.url;
+      if (!attributedTo) {
+        return true; // Include if we can't determine user
+      }
+      
+      // Extract base URL from attributedTo (e.g., "https://indieweb.social/users/dealingwith")
+      const userBase = attributedTo.substring(0, attributedTo.lastIndexOf('/'));
+      
+      // Include if replying to same user/instance (self-reply for threading)
+      if (inReplyTo.startsWith(userBase)) {
+        return true;
+      }
+      
+      // Exclude replies to other accounts
+      return false;
+    });
+  }
   // Function to find image file by base name (supports different extensions)
   function findImageFile(baseName: string): string {
     // Define preferred extensions in order of preference
@@ -95,7 +123,8 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
     return posts;
   }
 
-  const posts = await loadMastodonArchive();
+  const allPosts = await loadMastodonArchive();
+  const posts = filterOutRepliesToOthers(allPosts);
   const threads = processThreads(posts);
   
   // Paginate threads instead of individual posts
