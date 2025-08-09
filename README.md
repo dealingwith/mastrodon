@@ -171,6 +171,13 @@ The built site will be in the `dist/` folder, ready to deploy to any static host
 
 ## Customization
 
+### Configuration
+Edit `src/config.ts` to customize site behavior:
+
+- **`showRepliesToOthers`**: Whether to display replies to other accounts
+  - `false` (default): Shows only your original posts and self-replies (threaded posts)
+  - `true`: Shows all posts including replies to other people's posts
+
 ### Styling
 The main styles are in `src/pages/index.astro` and `src/components/MastodonPost.astro`. Modify these files to customize the appearance.
 

@@ -6,6 +6,7 @@ import type { GetStaticPaths, Page } from "astro";
 import ChevronLeftIcon from "../components/icons/ChevronLeftIcon.astro";
 import ChevronRightIcon from "../components/icons/ChevronRightIcon.astro";
 import DocumentIcon from "../components/icons/DocumentIcon.astro";
+import { config } from "../config";
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   // Filter out replies to other accounts (keep original posts and self-replies)
@@ -124,7 +125,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   }
 
   const allPosts = await loadMastodonArchive();
-  const posts = filterOutRepliesToOthers(allPosts);
+  const posts = config.showRepliesToOthers ? allPosts : filterOutRepliesToOthers(allPosts);
   const threads = processThreads(posts);
   
   // Paginate threads instead of individual posts
