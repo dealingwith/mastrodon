@@ -6,14 +6,85 @@ import path from 'path';
 const ARCHIVES_DIR = './public/archives';
 const OUTPUT_FILE = './public/outbox.json';
 
+// Recursively find all JSON files in directory and subdirectories
+function findJsonFiles(dir) {
+  let jsonFiles = [];
+  
+  if (!fs.existsSync(dir)) {
+    console.log(`Directory ${dir} does not exist`);
+    return jsonFiles;
+  }
+
+  const items = fs.readdirSync(dir, { withFileTypes: true });
+  
+  for (const item of items) {
+    const fullPath = path.join(dir, item.name);
+    
+    if (item.isDirectory()) {
+      // Recursively search subdirectories
+      jsonFiles = jsonFiles.concat(findJsonFiles(fullPath));
+    } else if (item.isFile() && item.name.endsWith('.json')) {
+      jsonFiles.push(fullPath);
+    }
+  }
+  
+  return jsonFiles;
+}
+
+// Check if a JSON file contains valid Mastodon archive data
+function isValidArchiveFile(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const data = JSON.parse(content);
+    
+    // Skip files that are clearly bookmarks or likes (just arrays of URLs)
+    if (data.orderedItems && Array.isArray(data.orderedItems) && data.orderedItems.length > 0) {
+      // Check if orderedItems contains actual post objects vs just URL strings
+      const firstItem = data.orderedItems[0];
+      if (typeof firstItem === 'string') {
+        // This is likely bookmarks.json or likes.json (array of URL strings)
+        return false;
+      }
+      // This should be actual ActivityPub posts with objects
+      return firstItem && (firstItem.type === 'Create' || firstItem.type === 'Note');
+    }
+    
+    // Check for direct array format
+    if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      // Should be post objects, not URL strings
+      return typeof firstItem === 'object' && firstItem !== null && (firstItem.id || firstItem.content);
+    }
+    
+    // Check for wrapped posts format
+    if (data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+      const firstItem = data.posts[0];
+      return typeof firstItem === 'object' && firstItem !== null && (firstItem.id || firstItem.content);
+    }
+    
+    return false;
+  } catch (error) {
+    console.log(`Skipping invalid JSON file: ${filePath}`);
+    return false;
+  }
+}
+
 async function combineArchives() {
   try {
-    // Read all JSON files from archives directory
-    const files = fs.readdirSync(ARCHIVES_DIR)
-      .filter(file => file.endsWith('.json'))
-      .map(file => path.join(ARCHIVES_DIR, file));
+    // Find all JSON files recursively
+    const allJsonFiles = findJsonFiles(ARCHIVES_DIR);
+    console.log(`Found ${allJsonFiles.length} JSON files`);
+    
+    // Filter to only valid archive files
+    const files = allJsonFiles.filter(file => {
+      const isValid = isValidArchiveFile(file);
+      if (!isValid) {
+        console.log(`Skipping non-archive file: ${file}`);
+      }
+      return isValid;
+    });
 
-    console.log(`Found ${files.length} JSON files to combine`);
+    console.log(`Found ${files.length} valid archive files to combine`);
 
     const allPosts = new Map(); // Use Map to automatically handle duplicates by ID
     let totalItems = 0;
