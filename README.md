@@ -178,8 +178,22 @@ Edit `src/config.ts` to customize site behavior:
   - `false` (default): Shows only your original posts and self-replies (threaded posts)
   - `true`: Shows all posts including replies to other people's posts
 
+- **`enableLinkPreviews`**: Whether to generate rich link previews for external URLs
+  - `true` (default): Fetches and displays rich preview cards (slower builds)
+  - `false`: Shows plain links only (much faster builds)
+
 ### Styling
 The main styles are in `src/pages/index.astro` and `src/components/MastodonPost.astro`. Modify these files to customize the appearance.
 
 ### Data Processing
 To modify how archive data is processed, edit `src/utils/loadArchive.ts`.
+
+### Link Previews
+Link previews are automatically generated for external URLs in posts. The system is optimized for build performance:
+
+- **Streaming fetch**: Only downloads HTML head section (not entire pages)
+- **3-second timeout**: Prevents slow sites from blocking builds
+- **HTML entity decoding**: Cleans up escaped characters in titles (`&amp;`, `&#39;`, `&nbsp;`, etc.)
+- **Compression support**: Uses gzip/deflate for faster downloads
+
+If link previews are slowing your build, you can disable them by setting `enableLinkPreviews: false` in `src/config.ts`.

@@ -36,13 +36,15 @@ function decodeHtmlEntities(text: string): string {
 
 async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000); // 8 seconds
+  const timeout = setTimeout(() => controller.abort(), 3000); // Reduced to 3 seconds
 
   try {
     const response = await fetch(url, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; Mastrodon/1.0; +https://example.com/bot)",
+        "User-Agent": "Mozilla/5.0 (compatible; Mastrodon/1.0; +https://example.com/bot)",
+        "Accept": "text/html",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "close", // Don't keep connection alive
       },
       signal: controller.signal,
     });
@@ -51,7 +53,31 @@ async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
 
     if (!response.ok) return null;
 
-    const html = await response.text();
+    // Stream the response and stop after we get the head section
+    const reader = response.body?.getReader();
+    if (!reader) return null;
+
+    const decoder = new TextDecoder();
+    let html = '';
+    let foundHead = false;
+    
+    try {
+      while (!foundHead) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        html += decoder.decode(value, { stream: true });
+        
+        // Stop reading once we have the closing head tag or enough content
+        if (html.includes('</head>') || html.length > 50000) {
+          foundHead = true;
+          reader.cancel(); // Stop the stream
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
     const preview: LinkPreviewData = {};
 
     // Extract Open Graph and meta tags

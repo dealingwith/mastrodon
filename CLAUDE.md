@@ -90,3 +90,21 @@ The application handles multiple Mastodon export formats:
 - **Styling**: TailwindCSS 4.x with custom orange/stone color scheme
 - **TypeScript**: Strict configuration for type safety
 - **Architecture**: Component-based with utility functions for data processing
+
+## Link Preview System
+
+The application includes an optimized link preview system (`LinkPreview.astro`) that can be toggled via `config.enableLinkPreviews`:
+
+**When enabled (default):**
+- **Streams HTML responses**: Only downloads the head section, not entire pages
+- **Uses 3-second timeouts**: Prevents slow external sites from blocking builds
+- **Decodes HTML entities**: Automatically cleans escaped characters (`&amp;` → `&`, `&#39;` → `'`, etc.)
+- **Optimized headers**: Requests only HTML with compression support
+- **Early termination**: Cancels downloads once meta tags are found
+
+**When disabled:**
+- **Plain links only**: Shows styled external links without fetching preview data
+- **Instant builds**: No network requests = much faster build times
+- **Fallback styling**: Links use consistent orange/amber theme
+
+The system is configurable in `src/config.ts` allowing users to balance build speed vs. rich preview functionality.
