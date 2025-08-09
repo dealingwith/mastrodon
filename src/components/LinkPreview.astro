@@ -19,16 +19,19 @@ interface LinkPreviewData {
 function decodeHtmlEntities(text: string): string {
   if (!text) return text;
   
-  return text
-    .replace(/&amp;/g, '&')
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&#x27;/g, "'")
-    .replace(/&#x2F;/g, '/')
-    .replace(/&#x3D;/g, '=');
+  const entityMap: Record<string, string> = {
+    '&amp;': '&',
+    '&#39;': "'",
+    '&quot;': '"',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&nbsp;': ' ',
+    '&#x27;': "'",
+    '&#x2F;': '/',
+    '&#x3D;': '='
+  };
+  
+  return text.replace(/&(?:amp|#39|quot|lt|gt|nbsp|#x27|#x2F|#x3D);/g, (match) => entityMap[match] || match);
 }
 
 async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
