@@ -1,7 +1,7 @@
 ---
-import MastodonPost from './MastodonPost.astro';
-import type { ThreadGroup } from '../utils/threadProcessor';
-import ReplyArrowIcon from './icons/ReplyArrowIcon.astro';
+import MastodonPost from "./MastodonPost.astro";
+import type { ThreadGroup } from "../utils/threadProcessor";
+import ReplyArrowIcon from "./icons/ReplyArrowIcon.astro";
 
 interface Props {
   thread: ThreadGroup;
@@ -14,79 +14,79 @@ const { posts } = thread;
 const isThread = posts.length > 1;
 ---
 
-<div class={`thread-container ${isThread ? 'is-thread' : ''}`}>
-  {posts.map((post, index) => (
-    <div 
-      class={`thread-post depth-${post.depth} ${post.isReply ? 'is-reply' : 'is-root'}`}
-      data-thread-position={post.threadPosition}
-    >
-      
-      {/* Reply indicator */}
-      {post.isReply && (
-        <div class="reply-indicator">
-          <ReplyArrowIcon class="w-4 h-4 text-stone-400" />
-          <span class="text-xs text-stone-500 ml-1">Replying to thread</span>
+<div class={`thread-container ${isThread ? "is-thread" : ""}`}>
+  {
+    posts.map((post, index) => (
+      <div
+        class={`thread-post depth-${post.depth} ${post.isReply ? "is-reply" : "is-root"}`}
+        data-thread-position={post.threadPosition}
+      >
+        {/* Reply indicator */}
+        {post.isReply && (
+          <div class="reply-indicator">
+            <ReplyArrowIcon class="w-4 h-4" />
+            <span class="text-xs ml-1">Replying to thread</span>
+          </div>
+        )}
+
+        {/* The actual post */}
+        <div class="post-content">
+          <MastodonPost post={post} />
         </div>
-      )}
-      
-      {/* The actual post */}
-      <div class="post-content">
-        <MastodonPost post={post} />
       </div>
-      
-    </div>
-  ))}
-  
+    ))
+  }
+
   {/* Thread summary for long threads */}
-  {isThread && posts.length > 3 && (
-    <div class="thread-summary">
-      <div class="text-sm text-stone-600 bg-orange-50 px-3 py-2 rounded-lg border border-orange-200">
-        📝 Thread with {posts.length} posts
+  {
+    isThread && posts.length > 3 && (
+      <div class="thread-summary">
+        <div class="text-sm px-3 py-2 rounded-lg border">
+          📝 Thread with {posts.length} posts
+        </div>
       </div>
-    </div>
-  )}
+    )
+  }
 </div>
 
 <style>
   .thread-container {
     position: relative;
   }
-  
+
   .thread-post {
     position: relative;
     margin-bottom: 1rem;
   }
-  
+
   .thread-post.is-reply {
     margin-left: 2rem;
   }
-  
-  .thread-post.depth-1 { margin-left: 2rem; }
-  .thread-post.depth-2 { margin-left: 4rem; }
-  .thread-post.depth-3 { margin-left: 6rem; }
-  
+
+  .thread-post.depth-1 {
+    margin-left: 2rem;
+  }
+  .thread-post.depth-2 {
+    margin-left: 4rem;
+  }
+  .thread-post.depth-3 {
+    margin-left: 6rem;
+  }
+
   .reply-indicator {
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
     padding-left: 0.5rem;
   }
-  
+
   .thread-summary {
     margin-top: 1rem;
     text-align: center;
   }
-  
+
   .post-content {
     position: relative;
     z-index: 1;
-  }
-  
-  /* Subtle background for threaded posts */
-  .is-thread .thread-post.is-reply .post-content {
-    background: linear-gradient(90deg, rgba(254, 215, 170, 0.1) 0%, transparent 100%);
-    border-radius: 0.75rem;
-    margin: -0.25rem;
-    padding: 0.25rem;
   }
 </style>

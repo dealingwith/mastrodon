@@ -7,6 +7,7 @@ import ChevronLeftIcon from "../components/icons/ChevronLeftIcon.astro";
 import ChevronRightIcon from "../components/icons/ChevronRightIcon.astro";
 import DocumentIcon from "../components/icons/DocumentIcon.astro";
 import { config } from "../config";
+import "../assets/app.css";
 import { findImageFile } from "../utils/imageUtils";
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
@@ -180,19 +181,16 @@ function getVisiblePages(current: number, total: number) {
 const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
 ---
 
-<html lang="en">
+<html lang="en" data-theme="cupcake">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Mastodon Archive{page.currentPage > 1 ? ` - Page ${page.currentPage}` : ""}</title>
-    <style>
-      @import "tailwindcss";
-    </style>
   </head>
-  <body class="bg-orange-50 text-stone-900 font-sans">
-    <header class="relative text-white overflow-hidden">
+  <body class="font-sans">
+    <header class="relative overflow-hidden">
       <!-- Header background image -->
       <div class="absolute inset-0">
         <img
@@ -205,12 +203,12 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
       <!-- Header content -->
       <div class="relative max-w-2xl mx-auto px-4 py-12 text-center">
         <a href="/" class="inline-block hover:opacity-90 transition-opacity duration-200">
-          <h1 class="text-5xl font-bold mb-3 text-shadow-lg">
+          <h1 class="text-5xl font-bold mb-3 text-shadow-lg text-secondary-content">
             Mastodon Archive
           </h1>
         </a>
         {page.currentPage > 1 && (
-          <p class="text-amber-100 text-lg mt-2">
+          <p class="text-lg mt-2">
             Page {page.currentPage} of {page.lastPage}
           </p>
         )}
@@ -220,16 +218,16 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
     <main class="max-w-2xl mx-auto px-4 py-12">
       {
         page.data.length === 0 && (
-          <div class="bg-white rounded-xl shadow-lg p-10 text-center border border-orange-200">
-            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <DocumentIcon class="w-8 h-8 text-orange-600" />
+          <div class="rounded-xl shadow-lg p-10 text-center border">
+            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <DocumentIcon class="w-8 h-8" />
             </div>
-            <h2 class="text-3xl font-bold text-stone-700 mb-6">
+            <h2 class="text-3xl font-bold mb-6">
               No posts found
             </h2>
             <p class="text-stone-600 mb-6 text-lg">
               Place your Mastodon archive JSON file at{" "}
-              <code class="bg-orange-100 px-3 py-1 rounded-md text-sm font-mono text-orange-800">
+              <code class="px-3 py-1 rounded-md text-sm font-mono">
                 public/outbox.json
               </code>{" "}
               to see your posts here.
@@ -249,7 +247,7 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
           {page.url.prev && (
             <a
               href={page.url.prev}
-              class="flex items-center space-x-2 px-4 py-2 bg-white border border-orange-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all duration-200 text-stone-700 hover:text-orange-800"
+              class="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200"
             >
               <ChevronLeftIcon />
               <span>Previous</span>
@@ -261,7 +259,7 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
             {visiblePages.map((pageNum, index) => {
               if (pageNum === '...') {
                 return (
-                  <span class="px-3 py-2 text-stone-400">...</span>
+                  <span class="px-3 py-2">...</span>
                 );
               }
               
@@ -271,8 +269,8 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
                   href={pageNum === 1 ? "/" : `/${pageNum}`}
                   class={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                     isCurrentPage
-                      ? "bg-orange-500 text-white shadow-md"
-                      : "bg-white border border-orange-200 text-stone-700 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-800"
+                      ? "shadow-md"
+                      : "border"
                   }`}
                 >
                   {pageNum}
@@ -285,7 +283,7 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
           {page.url.next && (
             <a
               href={page.url.next}
-              class="flex items-center space-x-2 px-4 py-2 bg-white border border-orange-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all duration-200 text-stone-700 hover:text-orange-800"
+              class="flex items-center space-x-2 px-4 py-2 bg-white border rounded-lg transition-all duration-200"
             >
               <span>Next</span>
               <ChevronRightIcon />
