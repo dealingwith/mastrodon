@@ -49,6 +49,7 @@ If you have multiple Mastodon archives (e.g., from different time periods or ins
    - Extract all your downloaded archives
    - Place all JSON files in the `public/archives/` folder
    - Files can have any name (e.g., `outbox1.json`, `outbox2.json`, etc.)
+   - Files can live in subfolders, the script will recursively get all content out of all subfolders
 
 2. **Combine the archives:**
    ```bash

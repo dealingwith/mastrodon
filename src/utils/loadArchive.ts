@@ -1,4 +1,5 @@
 import type { MastodonArchive, MastodonPost } from "../types/mastodon";
+import { findImageFile } from "./imageUtils";
 
 export async function loadMastodonArchive(): Promise<MastodonPost[]> {
   try {
@@ -70,7 +71,7 @@ function transformToMastodonPost(item: any): MastodonPost {
       username: extractUsername(item.attributedTo) || "user",
       display_name:
         item.actor?.name || extractUsername(item.attributedTo) || "User",
-      avatar: item.actor?.icon?.url || "/favicon.svg",
+      avatar: item.actor?.icon?.url || findImageFile("avatar"),
       url: item.attributedTo || "",
     },
     replies_count: item.replies?.totalItems || 0,

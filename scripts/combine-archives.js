@@ -77,11 +77,7 @@ async function combineArchives() {
     
     // Filter to only valid archive files
     const files = allJsonFiles.filter(file => {
-      const isValid = isValidArchiveFile(file);
-      if (!isValid) {
-        console.log(`Skipping non-archive file: ${file}`);
-      }
-      return isValid;
+      return isValidArchiveFile(file);
     });
 
     console.log(`Found ${files.length} valid archive files to combine`);
@@ -132,6 +128,9 @@ async function combineArchives() {
     
     // Copy media files
     await copyMediaFiles(sortedPosts);
+    
+    // Copy avatar and header images
+    await copyProfileImages();
     
   } catch (error) {
     console.error('❌ Error combining archives:', error);
@@ -230,6 +229,103 @@ function findMediaFileInArchives(mediaUrl) {
   }
   
   return null;
+}
+
+// Find and copy the most recent avatar and header images from archives
+async function copyProfileImages() {
+  console.log('\n🖼️  Copying profile images...');
+  
+  const profileTypes = ['avatar', 'header'];
+  const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'];
+  const logFile = './scripts/media-copy-log.txt';
+  const logEntries = [];
+  
+  logEntries.push(`\n=== Profile Images Copy - ${new Date().toISOString()} ===`);
+  
+  for (const profileType of profileTypes) {
+    try {
+      // Find all instances of this profile image type in archive directories
+      const foundFiles = findProfileImageInArchives(profileType, imageExtensions);
+      
+      if (foundFiles.length === 0) {
+        console.log(`⚠️  No ${profileType} image found in any archive`);
+        logEntries.push(`⚠️  NOT FOUND: ${profileType} (no instances found in archives)`);
+        continue;
+      }
+      
+      // Get the most recent file (by modification time)
+      const mostRecent = foundFiles.reduce((latest, current) => {
+        const latestStat = fs.statSync(latest);
+        const currentStat = fs.statSync(current);
+        return currentStat.mtime > latestStat.mtime ? current : latest;
+      });
+      
+      // Get the file extension from the most recent file
+      const fileExt = path.extname(mostRecent);
+      const destPath = `./public/${profileType}${fileExt}`;
+      
+      // Copy the most recent file
+      fs.copyFileSync(mostRecent, destPath);
+      const sourceStat = fs.statSync(mostRecent);
+      
+      console.log(`✅ Copied most recent ${profileType}${fileExt} from ${mostRecent} (modified: ${sourceStat.mtime.toISOString()})`);
+      logEntries.push(`✅ COPIED: ${profileType}${fileExt} <- ${mostRecent} (modified: ${sourceStat.mtime.toISOString()})`);
+      logEntries.push(`   Found ${foundFiles.length} instances, selected most recent`);
+      
+    } catch (error) {
+      console.log(`❌ Error copying ${profileType} image: ${error.message}`);
+      logEntries.push(`❌ ERROR: ${profileType} - ${error.message}`);
+    }
+  }
+  
+  // Append log to file
+  const logContent = logEntries.join('\n') + '\n';
+  fs.appendFileSync(logFile, logContent);
+  console.log(`🖼️  Profile images copy complete`);
+}
+
+// Find all instances of a profile image file in archive directories
+function findProfileImageInArchives(profileType, imageExtensions) {
+  const foundFiles = [];
+  
+  if (!fs.existsSync(ARCHIVES_DIR)) {
+    return foundFiles;
+  }
+  
+  // Get all archive directories
+  const archiveDirs = fs.readdirSync(ARCHIVES_DIR, { withFileTypes: true })
+    .filter(item => item.isDirectory())
+    .map(item => path.join(ARCHIVES_DIR, item.name));
+  
+  // Search recursively in each archive directory
+  function searchDirectory(dir) {
+    if (!fs.existsSync(dir)) return;
+    
+    const items = fs.readdirSync(dir, { withFileTypes: true });
+    
+    for (const item of items) {
+      const fullPath = path.join(dir, item.name);
+      
+      if (item.isFile()) {
+        const fileName = path.parse(item.name).name.toLowerCase();
+        const fileExt = path.parse(item.name).ext.toLowerCase();
+        
+        // Check if this is the profile image we're looking for
+        if (fileName === profileType && imageExtensions.includes(fileExt)) {
+          foundFiles.push(fullPath);
+        }
+      } else if (item.isDirectory()) {
+        searchDirectory(fullPath);
+      }
+    }
+  }
+  
+  // Search in each archive directory
+  for (const archiveDir of archiveDirs) {
+    searchDirectory(archiveDir);
+  }
+  
+  return foundFiles;
 }
 
 combineArchives();
