@@ -54,7 +54,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
 
     try {
       // Import the JSON file directly
-      const archiveData = await import("../../public/outbox.json");
+      const archiveData = await import("../../data/outbox.json");
       const data = archiveData.default;
 
       // Handle ActivityPub format

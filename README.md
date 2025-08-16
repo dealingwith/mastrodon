@@ -1,6 +1,6 @@
 # Mastrodon
 
-A static website generator for displaying Mastodon archive data using Astro. Transform your exported Mastodon posts into a beautiful, searchable static website.
+A static website generator for displaying Mastodon archive data using Astro.
 
 ## Getting Started
 
@@ -32,41 +32,18 @@ npm run dev
    - Go to your Mastodon instance
    - Navigate to Preferences → Import and export → Data export
    - Download your archive (this may take some time for large archives)
-
-#### Option 1: Single Archive File
-1. **Prepare the JSON file:**
-   - Extract the downloaded archive
-   - Locate the JSON file (usually named `outbox.json` or similar)
-   - Rename it to `outbox.json`
-1. **Place the file:**
-   - Copy `outbox.json` to the `public/` folder in this project
-   - The file should be at `public/outbox.json`
-
-#### Option 2: Multiple Archive Files
-If you have multiple Mastodon archives (e.g., from different time periods or instances), you can combine them:
-
-1. **Prepare the JSON files:**
-   - Extract all your downloaded archives
-   - Place all JSON files in the `public/archives/` folder
-   - Files can have any name (e.g., `outbox1.json`, `outbox2.json`, etc.)
-   - Files can live in subfolders, the script will recursively get all content out of all subfolders
-
-2. **Combine the archives:**
+1. **Copy the extracted archive folder into the project's `data/archives` folder**
+   - You can place multiple archive folders in there
+1. **Process your archive(s)**
    ```bash
    npm run combine-archives
    ```
    This script will:
-   - Read all JSON files from `public/archives/`
+   - Read all JSON files from `data/archives/`
    - Remove duplicate posts across files
    - Sort posts in reverse chronological order (newest first)
-   - Create a combined `public/outbox.json` file
-
-#### Media Files
-Put your `avatar` and `header` in `/public`
-- Put your files in `/public` and make the file structure match the paths in your JSON, e.g. look for these kinds of paths:
-```
-"url":"/<yourserver>/media_attachments/files/<...>/original/file.jpg"
-```
+   - Create a combined `data/outbox.json` file
+   - Copy your avatar and header images, and all your media files to be used in the new archive static site generation
 
 ## Supported Data Formats
 

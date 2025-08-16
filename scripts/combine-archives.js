@@ -3,8 +3,8 @@
 import fs from 'fs';
 import path from 'path';
 
-const ARCHIVES_DIR = './public/archives';
-const OUTPUT_FILE = './public/outbox.json';
+const ARCHIVES_DIR = './data/archives';
+const OUTPUT_FILE = './data/outbox.json';
 
 // Recursively find all JSON files in directory and subdirectories
 function findJsonFiles(dir) {

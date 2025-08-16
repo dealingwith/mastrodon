@@ -20,10 +20,9 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# jetbrains setting folder
-.idea/
 public/outbox.json
 public/indiewebsocial
-public/archives/
+data/**
+!data/.gitkeep
 claude_code_log.txt
 scripts/media-copy-log.txt
