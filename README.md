@@ -169,11 +169,12 @@ The main styles are in `src/pages/index.astro` and `src/components/MastodonPost.
 - You can configure display of reply posts in `config.ts` -- the default is `false`. Consider how other users might feel about displaying their usernames and profile links in your archive before turning this on.
 
 ### Link Previews
-Link previews are automatically generated for external URLs in posts. The system is optimized for build performance:
+Link previews can be automatically generated for external URLs in posts. To try and improve build performance it:
 
-- **Streaming fetch**: Only downloads HTML head section (not entire pages)
-- **3-second timeout**: Prevents slow sites from blocking builds
-- **HTML entity decoding**: Cleans up escaped characters in titles (`&amp;`, `&#39;`, `&nbsp;`, etc.)
-- **Compression support**: Uses gzip/deflate for faster downloads
+- uses streaming fetch -- only downloads HTML head section (not entire pages)
+- has a 3-second timeout
+- uses gzip/deflate for faster downloads
 
-If link previews are slowing your build, you can disable them by setting `enableLinkPreviews: false` in `src/config.ts`.
+It also tries to cleans up escaped characters in titles (`&amp;`, `&#39;`, `&nbsp;`, etc.)
+
+However, because generating link previews _significantly_ increases build time, they are disabled by default. You can enable them by setting `enableLinkPreviews: true` in `src/config.ts`.
