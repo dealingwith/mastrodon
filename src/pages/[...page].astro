@@ -12,30 +12,39 @@ import { findImageFile } from "../utils/imageUtils";
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   // Filter out replies to other accounts (keep original posts and self-replies)
   function filterOutRepliesToOthers(posts: MastodonPostType[]): MastodonPostType[] {
+    // Get the current user's URL from the first post to use for filtering
+    const currentUserUrl = posts.length > 0 ? posts[0].account?.url : null;
+    
     return posts.filter(post => {
       const inReplyTo = (post as any).inReplyTo;
+      const cc = (post as any).cc;
       
       // Include if not a reply
       if (!inReplyTo) {
         return true;
       }
       
-      // Get the user's attributedTo URL to identify self-replies
-      const attributedTo = post.account?.url;
-      if (!attributedTo) {
-        return true; // Include if we can't determine user
-      }
-      
-      // Extract base URL from attributedTo (e.g., "https://indieweb.social/users/dealingwith")
-      const userBase = attributedTo.substring(0, attributedTo.lastIndexOf('/'));
-      
-      // Include if replying to same user/instance (self-reply for threading)
-      if (inReplyTo.startsWith(userBase)) {
+      // Check if CC field contains other users (not just Public or current user)
+      const hasOtherUsersInCC = cc && Array.isArray(cc) && cc.some((ccItem: string) => {
+        // Skip public and non-user URLs
+        if (ccItem === 'https://www.w3.org/ns/activitystreams#Public' || !ccItem.includes('/users/')) {
+          return false;
+        }
+        // Skip current user's own URL
+        if (currentUserUrl && ccItem === currentUserUrl) {
+          return false;
+        }
+        // This is another user
         return true;
+      });
+      
+      // Filter out replies that involve other users
+      if (inReplyTo && hasOtherUsersInCC) {
+        return false; // Filter out reply conversations with others
       }
       
-      // Exclude replies to other accounts
-      return false;
+      // Keep self-replies and replies without other users in CC
+      return true;
     });
   }
 
@@ -76,6 +85,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
               sensitive: obj.sensitive || false,
               spoiler_text: obj.summary || "",
               inReplyTo: obj.inReplyTo, // Include the inReplyTo field
+              cc: item.cc, // Include the CC field for filtering
               media_attachments:
                 obj.attachment?.map((att: any) => ({
                   id: att.id || Math.random().toString(),
@@ -196,7 +206,7 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
       <div class="relative max-w-2xl mx-auto px-4 py-12 text-center">
         <a href="/" class="inline-block hover:opacity-90 transition-opacity duration-200">
           <h1 class="text-5xl font-bold mb-3 text-shadow-lg">
-            My Mastodon Archive
+            Mastodon Archive
           </h1>
         </a>
         {page.currentPage > 1 && (

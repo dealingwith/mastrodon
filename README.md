@@ -187,9 +187,9 @@ Edit `src/config.ts` to customize site behavior:
 The main styles are in `src/pages/index.astro` and `src/components/MastodonPost.astro`. Modify these files to customize the appearance.
 
 ### Data Processing
-To modify how archive data is processed, edit `src/utils/loadArchive.ts`.
 
-By default, not-public posts (e.g. follower-only) are excluded.
+- Not-public posts (e.g. follower-only) are excluded. 
+- You can configure display of reply posts in `config.ts` -- the default is `false`. Consider how other users might feel about displaying their usernames and profile links in your archive before turning this on.
 
 ### Link Previews
 Link previews are automatically generated for external URLs in posts. The system is optimized for build performance:
