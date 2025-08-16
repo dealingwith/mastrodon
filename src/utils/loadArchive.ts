@@ -23,13 +23,30 @@ export async function loadMastodonArchive(): Promise<MastodonPost[]> {
           (item: any) =>
             item.type === "Create" && item.object && item.object.type === "Note"
         )
+        .filter((item: any) => {
+          // Skip posts that weren't public (empty cc field)
+          const cc = item.cc || item.object?.cc;
+          return cc && Array.isArray(cc) && cc.length > 0;
+        })
         .map((item: any) => transformToMastodonPost(item.object));
     } else if (Array.isArray(data)) {
       // Direct array of posts
-      posts = data.map(transformToMastodonPost);
+      posts = data
+        .filter((item: any) => {
+          // Skip posts that weren't public (empty cc field)
+          const cc = item.cc;
+          return cc && Array.isArray(cc) && cc.length > 0;
+        })
+        .map(transformToMastodonPost);
     } else if (data.posts) {
       // Posts in a 'posts' property
-      posts = data.posts.map(transformToMastodonPost);
+      posts = data.posts
+        .filter((item: any) => {
+          // Skip posts that weren't public (empty cc field)
+          const cc = item.cc;
+          return cc && Array.isArray(cc) && cc.length > 0;
+        })
+        .map(transformToMastodonPost);
     }
 
     // Sort by date (newest first)

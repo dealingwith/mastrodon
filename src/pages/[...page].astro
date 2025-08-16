@@ -55,6 +55,11 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
             (item: any) =>
               item.type === "Create" && item.object && item.object.type === "Note"
           )
+          .filter((item: any) => {
+            // Skip posts that weren't public (empty cc field)
+            const cc = item.cc || item.object?.cc;
+            return cc && Array.isArray(cc) && cc.length > 0;
+          })
           .map((item: any) => {
             const obj = item.object;
 

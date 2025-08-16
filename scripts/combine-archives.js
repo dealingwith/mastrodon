@@ -95,6 +95,12 @@ async function combineArchives() {
       const posts = Array.isArray(data) ? data : (data.orderedItems || []);
       
       for (const post of posts) {
+        // Skip posts that weren't public (empty cc field)
+        const cc = post.cc || post.object?.cc;
+        if (!cc || (Array.isArray(cc) && cc.length === 0)) {
+          continue; // Skip non-public posts
+        }
+        
         // Use post ID as key to automatically deduplicate
         const postId = post.id || post.object?.id;
         if (postId && !allPosts.has(postId)) {

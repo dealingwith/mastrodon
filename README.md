@@ -189,6 +189,8 @@ The main styles are in `src/pages/index.astro` and `src/components/MastodonPost.
 ### Data Processing
 To modify how archive data is processed, edit `src/utils/loadArchive.ts`.
 
+By default, not-public posts (e.g. follower-only) are excluded.
+
 ### Link Previews
 Link previews are automatically generated for external URLs in posts. The system is optimized for build performance:
 
