@@ -61,7 +61,7 @@ function cleanMastodonLinks(content: string): string {
         '<svg class="inline w-4 h-4 mr-0.5 align-middle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.1m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>';
 
       return `<a${attributes}>${linkIcon}${middle}${end}</a>`;
-    }
+    },
   );
 }
 
@@ -70,7 +70,7 @@ const urls = extractUrls(cleanContent);
 ---
 
 <article
-  class="bg-white rounded-xl border border-orange-200 shadow-lg p-6 hover:shadow-xl hover:border-amber-300 transition-all duration-300"
+  class="bg-white rounded-xl border border-orange-200 shadow-lg p-6 pb-2 hover:shadow-xl hover:border-amber-300 transition-all duration-300"
 >
   <header class="flex justify-between items-start mb-5">
     <div class="flex items-center space-x-4">
@@ -110,7 +110,7 @@ const urls = extractUrls(cleanContent);
   }
 
   <div
-    class="prose prose-stone max-w-none mb-5 text-stone-800 leading-relaxed"
+    class="prose prose-stone max-w-none text-stone-800 leading-relaxed"
     set:html={cleanContent}
   />
 
@@ -142,7 +142,7 @@ const urls = extractUrls(cleanContent);
                 {media.description || `${media.type} attachment`}
               </span>
             </a>
-          )
+          ),
         )}
       </div>
     )
@@ -157,7 +157,6 @@ const urls = extractUrls(cleanContent);
       </div>
     )
   }
-
 </article>
 
 <style>
