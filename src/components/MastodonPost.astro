@@ -4,10 +4,6 @@ import LinkPreview from "./LinkPreview.astro";
 import VideoIcon from "./icons/VideoIcon.astro";
 import AudioIcon from "./icons/AudioIcon.astro";
 import AttachmentIcon from "./icons/AttachmentIcon.astro";
-import ReplyIcon from "./icons/ReplyIcon.astro";
-import RepostIcon from "./icons/RepostIcon.astro";
-import StarIcon from "./icons/StarIcon.astro";
-import LinkIcon from "./icons/LinkIcon.astro";
 import { config } from "../config";
 
 interface Props {
@@ -162,22 +158,6 @@ const urls = extractUrls(cleanContent);
     )
   }
 
-  <footer
-    class="flex space-x-8 text-stone-600 text-sm border-t border-orange-100 pt-4"
-  >
-    <span class="flex items-center space-x-2">
-      <ReplyIcon />
-      <span class="font-medium">{post.replies_count}</span>
-    </span>
-    <span class="flex items-center space-x-2">
-      <RepostIcon />
-      <span class="font-medium">{post.reblogs_count}</span>
-    </span>
-    <span class="flex items-center space-x-2">
-      <StarIcon />
-      <span class="font-medium">{post.favourites_count}</span>
-    </span>
-  </footer>
 </article>
 
 <style>
