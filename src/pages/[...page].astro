@@ -8,7 +8,7 @@ import ChevronRightIcon from "../components/icons/ChevronRightIcon.astro";
 import DocumentIcon from "../components/icons/DocumentIcon.astro";
 import { config } from "../config";
 import { findImageFile } from "../utils/imageUtils";
-import "../assets/app.css";
+import "../styles/global.css";
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   // Filter out replies to other accounts (keep original posts and self-replies)
