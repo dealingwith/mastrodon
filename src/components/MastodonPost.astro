@@ -69,28 +69,26 @@ const cleanContent = cleanMastodonLinks(post.content);
 const urls = extractUrls(cleanContent);
 ---
 
-<article
-  class="bg-white rounded-xl border border-orange-200 shadow-lg p-6 pb-2 hover:shadow-xl hover:border-amber-300 transition-all duration-300"
->
+<article class="rounded-xl border shadow-sm p-6 transition-all duration-300">
   <header class="flex justify-between items-start mb-5">
     <div class="flex items-center space-x-4">
       <img
         src={post.account.avatar}
         alt={`${post.account.display_name} avatar`}
-        class="w-14 h-14 rounded-full object-cover ring-2 ring-amber-200"
+        class="w-14 h-14 rounded-full object-cover ring-2"
       />
       <div>
-        <div class="font-bold text-stone-900 text-lg">
+        <div class="font-bold text-lg">
           {post.account.display_name}
         </div>
-        <div class="text-stone-600 text-sm">@{post.account.username}</div>
+        <div class="text-sm">@{post.account.username}</div>
       </div>
     </div>
     <a
       href={post.url}
       target="_blank"
       rel="noopener noreferrer"
-      class="text-stone-500 hover:text-orange-600 text-sm whitespace-nowrap ml-4 bg-orange-50 hover:bg-orange-100 px-3 py-1 rounded-full transition-colors no-underline"
+      class="text-sm whitespace-nowrap ml-4 px-3 py-1 rounded-full transition-colors no-underline"
     >
       <time datetime={post.created_at}>
         {formatDate(post.created_at)}
@@ -100,8 +98,8 @@ const urls = extractUrls(cleanContent);
 
   {
     post.spoiler_text && (
-      <div class="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-5">
-        <div class="text-amber-900">
+      <div class="border rounded-lg p-4 mb-5">
+        <div>
           <strong class="font-bold">Content Warning:</strong>{" "}
           {post.spoiler_text}
         </div>
@@ -110,7 +108,7 @@ const urls = extractUrls(cleanContent);
   }
 
   <div
-    class="prose prose-stone max-w-none text-stone-800 leading-relaxed"
+    class="prose prose-a:link prose-a:link-hover max-w-none leading-relaxed"
     set:html={cleanContent}
   />
 
@@ -122,14 +120,14 @@ const urls = extractUrls(cleanContent);
             <img
               src={media.url}
               alt={media.description || "Media attachment"}
-              class="rounded-xl max-w-full h-auto border border-orange-200 shadow-md"
+              class="rounded-xl max-w-full h-auto border shadow-sm"
             />
           ) : (
             <a
               href={media.url}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center space-x-3 text-orange-700 hover:text-red-700 hover:underline bg-orange-50 px-4 py-2 rounded-lg border border-orange-200"
+              class="inline-flex items-center space-x-3 px-4 py-2 rounded-lg border"
             >
               {media.type === "video" ? (
                 <VideoIcon />
@@ -158,50 +156,3 @@ const urls = extractUrls(cleanContent);
     )
   }
 </article>
-
-<style>
-  /* Style links within post content */
-  .prose a {
-    color: #ea580c;
-    font-weight: 500;
-    text-decoration: underline;
-    text-decoration-color: #fed7aa;
-    transition: all 0.2s ease;
-  }
-
-  .prose a:hover {
-    color: #dc2626;
-    text-decoration-color: #ef4444;
-  }
-
-  /* Style mentions and hashtags */
-  .prose a[href*="/tags/"]:not([href^="http"]) {
-    color: #d97706;
-    font-weight: 600;
-    text-decoration: none;
-    background-color: #fffbeb;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    transition: all 0.2s ease;
-  }
-
-  .prose a[href*="/tags/"]:not([href^="http"]):hover {
-    color: #ea580c;
-    background-color: #fef3c7;
-  }
-
-  .prose a.mention {
-    color: #ea580c;
-    font-weight: 600;
-    text-decoration: none;
-    background-color: #fff7ed;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    transition: all 0.2s ease;
-  }
-
-  .prose a.mention:hover {
-    color: #dc2626;
-    background-color: #fed7aa;
-  }
-</style>
