@@ -146,6 +146,7 @@ The built site will be in the `dist/` folder, ready to deploy to any static host
 | `npm run build`        | Build production site to `./dist/`   |
 | `npm run preview`      | Preview production build locally     |
 | `npm run combine-archives` | Combine multiple JSON archives into single outbox.json |
+| `npm run test:build` | Verify build completeness |
 
 ## Customization
 

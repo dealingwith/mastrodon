@@ -8,7 +8,8 @@
     "build:verbose": "astro build --devOutput",
     "preview": "astro preview",
     "astro": "astro",
-    "combine-archives": "node scripts/combine-archives.js"
+    "combine-archives": "node scripts/combine-archives.js",
+    "test:build": "node scripts/verify-build.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
