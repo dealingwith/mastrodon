@@ -7,8 +7,8 @@ import ChevronLeftIcon from "../components/icons/ChevronLeftIcon.astro";
 import ChevronRightIcon from "../components/icons/ChevronRightIcon.astro";
 import DocumentIcon from "../components/icons/DocumentIcon.astro";
 import { config } from "../config";
-import "../assets/app.css";
 import { findImageFile } from "../utils/imageUtils";
+import "../assets/app.css";
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   // Filter out replies to other accounts (keep original posts and self-replies)
@@ -181,7 +181,7 @@ function getVisiblePages(current: number, total: number) {
 const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
 ---
 
-<html lang="en" data-theme="cupcake">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -225,7 +225,7 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
             <h2 class="text-3xl font-bold mb-6">
               No posts found
             </h2>
-            <p class="text-stone-600 mb-6 text-lg">
+            <p class="text-base-content/70 mb-6 text-lg">
               Place your Mastodon archive JSON file at{" "}
               <code class="px-3 py-1 rounded-md text-sm font-mono">
                 public/outbox.json
