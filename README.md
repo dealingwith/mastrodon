@@ -158,8 +158,8 @@ Edit `src/config.ts` to customize site behavior:
   - `true`: Shows all posts including replies to other people's posts
 
 - **`enableLinkPreviews`**: Whether to generate rich link previews for external URLs
-  - `true`: Fetches and displays rich preview cards (slower builds)
   - `false` (default): Shows plain links only (much faster builds)
+  - `true`: Fetches and displays rich preview cards (slower builds)
 
 ### Styling
 The fastest path to a different style is picking from [DaisyUI themes](https://daisyui.com/docs/themes/#list-of-themes) and modifying `global.css`
