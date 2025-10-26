@@ -12,3 +12,9 @@
   themes: light, dark, cupcake --default, forest --prefersdark;
 }
 /* @import "tailwindcss"; */
+
+/* Global styles */
+article a {
+  word-break: break-word;
+  hyphens: auto;
+}
