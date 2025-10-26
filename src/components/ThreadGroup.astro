@@ -60,17 +60,34 @@ const isThread = posts.length > 1;
   }
 
   .thread-post.is-reply {
-    margin-left: 2rem;
+    margin-left: 1rem;
   }
 
   .thread-post.depth-1 {
-    margin-left: 2rem;
+    margin-left: 1rem;
   }
   .thread-post.depth-2 {
-    margin-left: 4rem;
+    margin-left: 2rem;
   }
   .thread-post.depth-3 {
-    margin-left: 6rem;
+    margin-left: 3rem;
+  }
+
+  /* Larger indentation on wider screens */
+  @media (min-width: 640px) {
+    .thread-post.is-reply {
+      margin-left: 2rem;
+    }
+
+    .thread-post.depth-1 {
+      margin-left: 2rem;
+    }
+    .thread-post.depth-2 {
+      margin-left: 4rem;
+    }
+    .thread-post.depth-3 {
+      margin-left: 6rem;
+    }
   }
 
   .reply-indicator {

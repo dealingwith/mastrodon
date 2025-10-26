@@ -69,31 +69,37 @@ const cleanContent = cleanMastodonLinks(post.content);
 const urls = extractUrls(cleanContent);
 ---
 
-<article class="rounded-xl border shadow-sm p-6 transition-all duration-300">
-  <header class="flex justify-between items-start mb-5">
-    <div class="flex items-center space-x-4">
+<article class="rounded-xl border shadow-sm p-4 transition-all duration-300">
+  <header class="mb-5">
+    <div class="flex items-start gap-3 min-w-0">
       <img
         src={post.account.avatar}
         alt={`${post.account.display_name} avatar`}
-        class="w-14 h-14 rounded-full object-cover ring-2"
+        class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover ring-2 flex-shrink-0"
       />
-      <div>
-        <div class="font-bold text-lg">
-          {post.account.display_name}
+      <div class="min-w-0 flex flex-col">
+        <div class="flex items-baseline gap-2 flex-wrap leading-none">
+          <span
+            class="font-bold text-base sm:text-lg break-words leading-tight"
+          >
+            {post.account.display_name}
+          </span>
+          <span class="text-xs sm:text-sm break-words leading-tight"
+            >@{post.account.username}</span
+          >
         </div>
-        <div class="text-sm">@{post.account.username}</div>
+        <a
+          href={post.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs sm:text-sm transition-colors no-underline inline-block"
+        >
+          <time datetime={post.created_at}>
+            {formatDate(post.created_at)}
+          </time>
+        </a>
       </div>
     </div>
-    <a
-      href={post.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="text-sm whitespace-nowrap ml-4 px-3 py-1 rounded-full transition-colors no-underline"
-    >
-      <time datetime={post.created_at}>
-        {formatDate(post.created_at)}
-      </time>
-    </a>
   </header>
 
   {

@@ -201,14 +201,14 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
       </div>
 
       <!-- Header content -->
-      <div class="relative max-w-2xl mx-auto px-4 py-12 text-center">
+      <div class="relative max-w-2xl mx-auto px-4 py-8 sm:py-12 text-center">
         <a href="/" class="inline-block hover:opacity-90 transition-opacity duration-200">
-          <h1 class="text-5xl font-bold mb-3">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-3 break-words">
             Mastodon Archive
           </h1>
         </a>
         {page.currentPage > 1 && (
-          <p class="text-lg mt-2">
+          <p class="text-base sm:text-lg mt-2">
             Page {page.currentPage} of {page.lastPage}
           </p>
         )}
@@ -242,32 +242,32 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
 
       <!-- Pagination Navigation -->
       {page.lastPage > 1 && (
-        <nav class="mt-12 flex justify-center items-center space-x-4">
+        <nav class="mt-12 flex flex-wrap justify-center items-center gap-2 sm:gap-4">
           <!-- Previous Page -->
           {page.url.prev && (
             <a
               href={page.url.prev}
-              class="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200"
+              class="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200"
             >
               <ChevronLeftIcon />
-              <span>Previous</span>
+              <span class="hidden sm:inline">Previous</span>
             </a>
           )}
 
           <!-- Page Numbers -->
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center gap-1 sm:gap-2">
             {visiblePages.map((pageNum, index) => {
               if (pageNum === '...') {
                 return (
-                  <span class="px-3 py-2">...</span>
+                  <span class="px-2 sm:px-3 py-2">...</span>
                 );
               }
-              
+
               const isCurrentPage = pageNum === page.currentPage;
               return (
                 <a
                   href={pageNum === 1 ? "/" : `/${pageNum}`}
-                  class={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  class={`px-2 sm:px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                     isCurrentPage
                       ? "shadow-md"
                       : "border"
@@ -283,9 +283,9 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
           {page.url.next && (
             <a
               href={page.url.next}
-              class="flex items-center space-x-2 px-4 py-2 bg-white border rounded-lg transition-all duration-200"
+              class="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-white border rounded-lg transition-all duration-200"
             >
-              <span>Next</span>
+              <span class="hidden sm:inline">Next</span>
               <ChevronRightIcon />
             </a>
           )}
