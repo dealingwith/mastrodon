@@ -18,3 +18,22 @@ article a {
   word-break: break-word;
   hyphens: auto;
 }
+
+/* Prevent text overflow on mobile */
+article {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+article p,
+article div {
+  overflow-wrap: break-word;
+}
+
+/* Slightly larger prose text on mobile for readability */
+@media (max-width: 640px) {
+  .prose {
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.6;
+  }
+}

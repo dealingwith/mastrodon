@@ -9,5 +9,5 @@ export const config = {
   // Whether to generate link previews for external URLs
   // true = fetch and display rich link previews (slower builds)
   // false = show plain links only (faster builds)
-  enableLinkPreviews: false,
+  enableLinkPreviews: true,
 };
