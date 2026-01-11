@@ -10,6 +10,7 @@
 */
 @plugin "daisyui" {
   themes: light, dark, cupcake --default, forest --prefersdark;
+  components: false;
 }
 /* @import "tailwindcss"; */
 
