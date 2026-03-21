@@ -7,21 +7,29 @@ A static website generator for displaying Mastodon archive data using Astro.
 ### Prerequisites
 
 - Node.js 18.20.8 or higher
-- npm or yarn
+- npm, yarn, or bun
 
 ### Installation
 
 1. Clone or download this repository
-2. Install dependencies:
+2. Install dependencies with your preferred package manager:
 
 ```bash
 npm install
+```
+
+```bash
+bun install
 ```
 
 3. Start the development server:
 
 ```bash
 npm run dev
+```
+
+```bash
+bun run dev
 ```
 
 4. Open [http://localhost:4321](http://localhost:4321) in your browser
@@ -37,6 +45,10 @@ npm run dev
 1. **Process your archive(s)**
    ```bash
    npm run combine-archives
+   ```
+
+   ```bash
+   bun run combine-archives
    ```
    This script will:
    - Read all JSON files from `data/archives/`
@@ -117,6 +129,10 @@ To create a production build:
 npm run build
 ```
 
+```bash
+bun run build
+```
+
 The built site will be in the `dist/` folder, ready to deploy to any static hosting service.
 
 ## Project Structure
@@ -142,11 +158,17 @@ The built site will be in the `dist/` folder, ready to deploy to any static host
 | Command                | Action                               |
 | ---------------------- | ------------------------------------ |
 | `npm install`          | Install dependencies                 |
+| `bun install`          | Install dependencies with Bun        |
 | `npm run dev`          | Start dev server at `localhost:4321` |
+| `bun run dev`          | Start dev server at `localhost:4321` |
 | `npm run build`        | Build production site to `./dist/`   |
+| `bun run build`        | Build production site to `./dist/`   |
 | `npm run preview`      | Preview production build locally     |
+| `bun run preview`      | Preview production build locally     |
 | `npm run combine-archives` | Combine multiple JSON archives into single outbox.json |
+| `bun run combine-archives` | Combine multiple JSON archives into single outbox.json |
 | `npm run test:build` | Verify build completeness |
+| `bun run test:build` | Verify build completeness |
 
 ## Customization
 
