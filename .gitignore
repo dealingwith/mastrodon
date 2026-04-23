@@ -26,3 +26,4 @@ data/**
 !data/.gitkeep
 claude_code_log.txt
 scripts/media-copy-log.txt
+.codex

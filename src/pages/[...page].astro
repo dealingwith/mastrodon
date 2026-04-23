@@ -8,125 +8,10 @@ import ChevronRightIcon from "../components/icons/ChevronRightIcon.astro";
 import DocumentIcon from "../components/icons/DocumentIcon.astro";
 import { config } from "../config";
 import { findImageFile } from "../utils/imageUtils";
+import { filterOutRepliesToOthers, loadMastodonArchive } from "../utils/archive";
 import "../styles/global.css";
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  // Filter out replies to other accounts (keep original posts and self-replies)
-  function filterOutRepliesToOthers(posts: MastodonPostType[]): MastodonPostType[] {
-    // Get the current user's URL from the first post to use for filtering
-    const currentUserUrl = posts.length > 0 ? posts[0].account?.url : null;
-    
-    return posts.filter(post => {
-      const inReplyTo = (post as any).inReplyTo;
-      const cc = (post as any).cc;
-      
-      // Include if not a reply
-      if (!inReplyTo) {
-        return true;
-      }
-      
-      // Check if CC field contains other users (not just Public or current user)
-      const hasOtherUsersInCC = cc && Array.isArray(cc) && cc.some((ccItem: string) => {
-        // Skip public and non-user URLs
-        if (ccItem === 'https://www.w3.org/ns/activitystreams#Public' || !ccItem.includes('/users/')) {
-          return false;
-        }
-        // Skip current user's own URL
-        if (currentUserUrl && ccItem === currentUserUrl) {
-          return false;
-        }
-        // This is another user
-        return true;
-      });
-      
-      // Filter out replies that involve other users
-      if (inReplyTo && hasOtherUsersInCC) {
-        return false; // Filter out reply conversations with others
-      }
-      
-      // Keep self-replies and replies without other users in CC
-      return true;
-    });
-  }
-
-  // Load Mastodon archive from JSON file
-  async function loadMastodonArchive(): Promise<MastodonPostType[]> {
-    let posts: MastodonPostType[] = [];
-
-    try {
-      // Import the JSON file directly
-      const archiveData = await import("../../data/outbox.json");
-      const data = archiveData.default;
-
-      // Handle ActivityPub format
-      if (data.orderedItems) {
-        posts = data.orderedItems
-          .filter(
-            (item: any) =>
-              item.type === "Create" && item.object && item.object.type === "Note"
-          )
-          .filter((item: any) => {
-            // Skip posts that weren't public (empty cc field)
-            const cc = item.cc || item.object?.cc;
-            return cc && Array.isArray(cc) && cc.length > 0;
-          })
-          .map((item: any) => {
-            const obj = item.object;
-
-            // Extract numeric ID from URL
-            const idMatch = obj.id?.match(/\/statuses\/(\d+)$/);
-            const numericId = idMatch ? idMatch[1] : obj.id;
-
-            return {
-              id: numericId || Math.random().toString(),
-              created_at: obj.published || new Date().toISOString(),
-              content: obj.content || "",
-              url: obj.url || obj.id,
-              visibility: "public",
-              sensitive: obj.sensitive || false,
-              spoiler_text: obj.summary || "",
-              inReplyTo: obj.inReplyTo, // Include the inReplyTo field
-              cc: item.cc, // Include the CC field for filtering
-              media_attachments:
-                obj.attachment?.map((att: any) => ({
-                  id: att.id || Math.random().toString(),
-                  type: att.mediaType?.includes("image")
-                    ? "image"
-                    : att.mediaType?.includes("video")
-                      ? "video"
-                      : att.mediaType?.includes("audio")
-                        ? "audio"
-                        : "unknown",
-                  url: att.url || att.href,
-                  preview_url: att.url || att.href,
-                  description: att.name || att.summary,
-                })) || [],
-              account: {
-                id: obj.attributedTo || "unknown",
-                username: obj.attributedTo?.split("/").pop() || "user",
-                display_name: obj.attributedTo?.split("/").pop() || "User",
-                avatar: findImageFile("avatar"),
-                url: obj.attributedTo || "",
-              },
-              replies_count: obj.replies?.totalItems || 0,
-              reblogs_count: obj.shares?.totalItems || 0,
-              favourites_count: obj.likes?.totalItems || 0,
-            };
-          });
-      }
-
-      // Sort by date (newest first)
-      posts.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    } catch (error) {
-      console.log("Could not load outbox.json:", error);
-    }
-
-    return posts;
-  }
-
   const allPosts = await loadMastodonArchive();
   const posts = config.showRepliesToOthers ? allPosts : filterOutRepliesToOthers(allPosts);
   const threads = processThreads(posts);
@@ -247,7 +132,7 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
           {page.url.prev && (
             <a
               href={page.url.prev}
-              class="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200"
+              class="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-white border rounded-lg transition-all duration-200"
             >
               <ChevronLeftIcon />
               <span class="hidden sm:inline">Previous</span>
@@ -269,7 +154,7 @@ const visiblePages = getVisiblePages(page.currentPage, page.lastPage);
                   href={pageNum === 1 ? "/" : `/${pageNum}`}
                   class={`px-2 sm:px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                     isCurrentPage
-                      ? "shadow-md"
+                      ? "border border-base-content/20"
                       : "border"
                   }`}
                 >

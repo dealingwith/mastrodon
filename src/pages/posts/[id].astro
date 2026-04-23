@@ -1,0 +1,40 @@
+---
+import type { GetStaticPaths } from "astro";
+import MastodonPost from "../../components/MastodonPost.astro";
+import { config } from "../../config";
+import { filterOutRepliesToOthers, loadMastodonArchive } from "../../utils/archive";
+import "../../styles/global.css";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const allPosts = await loadMastodonArchive();
+  const posts = config.showRepliesToOthers
+    ? allPosts
+    : filterOutRepliesToOthers(allPosts);
+
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+};
+
+const { post } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{post.account.display_name} on {new Date(post.created_at).toLocaleDateString("en-US")}</title>
+  </head>
+  <body class="font-sans bg-gradient-to-r from-primary/40 to-secondary/40">
+    <main class="max-w-2xl mx-auto px-4 py-12">
+      <div class="mb-6">
+        <a href="/" class="text-sm underline-offset-4 hover:underline">Back to archive</a>
+      </div>
+
+      <MastodonPost post={post} />
+    </main>
+  </body>
+</html>

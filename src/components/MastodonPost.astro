@@ -69,7 +69,9 @@ const cleanContent = cleanMastodonLinks(post.content);
 const urls = extractUrls(cleanContent);
 ---
 
-<article class="rounded-xl border shadow-sm p-4 transition-all duration-300">
+<article
+  class="rounded-lg border border-base-content/30 shadow-sm p-4 transition-all duration-300"
+>
   <header class="mb-5">
     <div class="flex items-start gap-3 min-w-0">
       <img
@@ -89,9 +91,7 @@ const urls = extractUrls(cleanContent);
           >
         </div>
         <a
-          href={post.url}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={`/posts/${post.id}`}
           class="text-xs sm:text-sm transition-colors no-underline inline-block"
         >
           <time datetime={post.created_at}>
@@ -126,7 +126,7 @@ const urls = extractUrls(cleanContent);
             <img
               src={media.url}
               alt={media.description || "Media attachment"}
-              class="rounded-xl max-w-full h-auto border shadow-sm"
+              class="rounded-lg max-w-full h-auto shadow-sm"
             />
           ) : (
             <a
@@ -154,7 +154,7 @@ const urls = extractUrls(cleanContent);
 
   {
     config.enableLinkPreviews && urls.length > 0 && (
-      <div class="mb-5 space-y-3">
+      <div class="mt-5 space-y-3">
         {urls.map((url) => (
           <LinkPreview url={url} />
         ))}

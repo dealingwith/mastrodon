@@ -5,6 +5,7 @@ import path from 'path';
 
 const ARCHIVES_DIR = './data/archives';
 const OUTPUT_FILE = './data/outbox.json';
+let mediaFileIndex = null;
 
 // Recursively find all JSON files in directory and subdirectories
 function findJsonFiles(dir) {
@@ -215,26 +216,75 @@ async function copyMediaFiles(posts) {
   console.log(`📝 Detailed log appended to: ${logFile}`);
 }
 
-// Find a media file in the archives directories
-function findMediaFileInArchives(mediaUrl) {
-  // Convert URL path to file system path
-  // e.g., "/indiewebsocial/media_attachments/files/110/634/..." 
-  // becomes "media_attachments/files/110/634/..."
-  const relativePath = mediaUrl.substring(mediaUrl.indexOf('media_attachments'));
-  
-  // Search in all archive directories
-  const archiveDirs = fs.readdirSync(ARCHIVES_DIR, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => path.join(ARCHIVES_DIR, item.name));
-  
-  for (const archiveDir of archiveDirs) {
-    const possiblePath = path.join(archiveDir, relativePath);
-    if (fs.existsSync(possiblePath)) {
-      return possiblePath;
+function normalizeMediaPath(filePath) {
+  const normalizedPath = filePath.split(path.sep).join('/');
+  const marker = 'media_attachments/';
+  const markerIndex = normalizedPath.indexOf(marker);
+  return markerIndex === -1 ? null : normalizedPath.substring(markerIndex);
+}
+
+function indexMediaFiles(dir, mediaFiles = new Map()) {
+  if (!fs.existsSync(dir)) {
+    return mediaFiles;
+  }
+
+  const items = fs.readdirSync(dir, { withFileTypes: true });
+
+  for (const item of items) {
+    if (item.name === '__MACOSX') {
+      continue;
+    }
+
+    const fullPath = path.join(dir, item.name);
+
+    if (item.isDirectory()) {
+      indexMediaFiles(fullPath, mediaFiles);
+      continue;
+    }
+
+    if (!item.isFile()) {
+      continue;
+    }
+
+    const normalizedMediaPath = normalizeMediaPath(fullPath);
+    if (!normalizedMediaPath) {
+      continue;
+    }
+
+    const existingPath = mediaFiles.get(normalizedMediaPath);
+    if (!existingPath) {
+      mediaFiles.set(normalizedMediaPath, fullPath);
+      continue;
+    }
+
+    const existingStat = fs.statSync(existingPath);
+    const currentStat = fs.statSync(fullPath);
+    if (currentStat.mtime > existingStat.mtime) {
+      mediaFiles.set(normalizedMediaPath, fullPath);
     }
   }
-  
-  return null;
+
+  return mediaFiles;
+}
+
+function getMediaFileIndex() {
+  if (mediaFileIndex) {
+    return mediaFileIndex;
+  }
+
+  mediaFileIndex = indexMediaFiles(ARCHIVES_DIR);
+  console.log(`Indexed ${mediaFileIndex.size} media files from archives`);
+  return mediaFileIndex;
+}
+
+// Find a media file in the archives directories
+function findMediaFileInArchives(mediaUrl) {
+  const relativePath = normalizeMediaPath(mediaUrl);
+  if (!relativePath) {
+    return null;
+  }
+
+  return getMediaFileIndex().get(relativePath) || null;
 }
 
 // Find and copy the most recent avatar and header images from archives

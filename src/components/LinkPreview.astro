@@ -1,5 +1,5 @@
 ---
-import ExternalArrowIcon from './icons/ExternalArrowIcon.astro';
+import ExternalArrowIcon from "./icons/ExternalArrowIcon.astro";
 
 interface Props {
   url: string;
@@ -18,20 +18,23 @@ interface LinkPreviewData {
 // Decode common HTML entities in titles and descriptions
 function decodeHtmlEntities(text: string): string {
   if (!text) return text;
-  
+
   const entityMap: Record<string, string> = {
-    '&amp;': '&',
-    '&#39;': "'",
-    '&quot;': '"',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&nbsp;': ' ',
-    '&#x27;': "'",
-    '&#x2F;': '/',
-    '&#x3D;': '='
+    "&amp;": "&",
+    "&#39;": "'",
+    "&quot;": '"',
+    "&lt;": "<",
+    "&gt;": ">",
+    "&nbsp;": " ",
+    "&#x27;": "'",
+    "&#x2F;": "/",
+    "&#x3D;": "=",
   };
-  
-  return text.replace(/&(?:amp|#39|quot|lt|gt|nbsp|#x27|#x2F|#x3D);/g, (match) => entityMap[match] || match);
+
+  return text.replace(
+    /&(?:amp|#39|quot|lt|gt|nbsp|#x27|#x2F|#x3D);/g,
+    (match) => entityMap[match] || match,
+  );
 }
 
 async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
@@ -41,10 +44,11 @@ async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
   try {
     const response = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; Mastrodon/1.0; +https://example.com/bot)",
-        "Accept": "text/html",
+        "User-Agent":
+          "Mozilla/5.0 (compatible; Mastrodon/1.0; +https://example.com/bot)",
+        Accept: "text/html",
         "Accept-Encoding": "gzip, deflate",
-        "Connection": "close", // Don't keep connection alive
+        Connection: "close", // Don't keep connection alive
       },
       signal: controller.signal,
     });
@@ -58,19 +62,19 @@ async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
     if (!reader) return null;
 
     const decoder = new TextDecoder();
-    let html = '';
+    let html = "";
     let foundHead = false;
-    
+
     try {
       while (!foundHead) {
         const { done, value } = await reader.read();
-        
+
         if (done) break;
-        
+
         html += decoder.decode(value, { stream: true });
-        
+
         // Stop reading once we have the closing head tag or enough content
-        if (html.includes('</head>') || html.length > 50000) {
+        if (html.includes("</head>") || html.length > 50000) {
           foundHead = true;
           reader.cancel(); // Stop the stream
         }
@@ -82,30 +86,36 @@ async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
 
     // Extract Open Graph and meta tags
     const ogTitleMatch = html.match(
-      /<meta property="og:title" content="([^"]*)"[^>]*>/i
+      /<meta property="og:title" content="([^"]*)"[^>]*>/i,
     );
     const ogDescMatch = html.match(
-      /<meta property="og:description" content="([^"]*)"[^>]*>/i
+      /<meta property="og:description" content="([^"]*)"[^>]*>/i,
     );
     const ogImageMatch = html.match(
-      /<meta property="og:image" content="([^"]*)"[^>]*>/i
+      /<meta property="og:image" content="([^"]*)"[^>]*>/i,
     );
     const ogSiteMatch = html.match(
-      /<meta property="og:site_name" content="([^"]*)"[^>]*>/i
+      /<meta property="og:site_name" content="([^"]*)"[^>]*>/i,
     );
 
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
     const descMatch = html.match(
-      /<meta name="description" content="([^"]*)"[^>]*>/i
+      /<meta name="description" content="([^"]*)"[^>]*>/i,
     );
     const faviconMatch = html.match(
-      /<link[^>]*rel="(?:shortcut )?icon"[^>]*href="([^"]*)"[^>]*>/i
+      /<link[^>]*rel="(?:shortcut )?icon"[^>]*href="([^"]*)"[^>]*>/i,
     );
 
-    preview.title = decodeHtmlEntities(ogTitleMatch?.[1] || titleMatch?.[1] || "");
-    preview.description = decodeHtmlEntities(ogDescMatch?.[1] || descMatch?.[1] || "");
+    preview.title = decodeHtmlEntities(
+      ogTitleMatch?.[1] || titleMatch?.[1] || "",
+    );
+    preview.description = decodeHtmlEntities(
+      ogDescMatch?.[1] || descMatch?.[1] || "",
+    );
     preview.image = ogImageMatch?.[1] || "";
-    preview.siteName = decodeHtmlEntities(ogSiteMatch?.[1] || new URL(url).hostname);
+    preview.siteName = decodeHtmlEntities(
+      ogSiteMatch?.[1] || new URL(url).hostname,
+    );
     preview.favicon = faviconMatch?.[1] || "";
 
     // Make relative URLs absolute
@@ -136,7 +146,7 @@ const domain = new URL(url).hostname;
 
 {
   preview && (preview.title || preview.description) && (
-    <div class="border border-base-300 rounded-lg overflow-hidden bg-base-100 hover:shadow-md transition-shadow">
+    <div class="rounded-lg overflow-hidden bg-base-100 hover:shadow-md transition-shadow">
       <a
         href={url}
         target="_blank"
